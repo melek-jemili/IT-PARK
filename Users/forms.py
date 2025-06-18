@@ -1,9 +1,10 @@
 from django import forms
-from django.contrib.auth.models import User
+#from django.contrib.auth.models import User
+from .models import Profile
 
 class UserForm(forms.ModelForm):
     class Meta:
-        model = User
+        model = Profile
         fields = [ 'first_name', 'last_name','matricule','cin','email','telephone','fonction','dateNaissance','region','unite']
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),

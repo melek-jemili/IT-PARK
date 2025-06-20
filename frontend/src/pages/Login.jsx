@@ -5,6 +5,7 @@ import axios from 'axios';
 export default function Login({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -26,6 +27,8 @@ export default function Login({ onLogin }) {
       <h2>Login</h2>
       <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" />
       <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Password" />
+      <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Email" />
+      <br />
       <button type="submit">Login</button>
     </form>
   );

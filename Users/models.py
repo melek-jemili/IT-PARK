@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 from Unite.models import Unite
 # Create your models here.
 class Profile(models.Model):
@@ -12,6 +13,7 @@ class Profile(models.Model):
     email = models.EmailField(max_length=254, unique=True)
     telephone = models.CharField(max_length=15, unique=True)
     unite = models.ForeignKey(Unite, on_delete=models.CASCADE)
+    id=models.ForeignKey(User, on_delete=models.CASCADE, related_name='Profile')
 
     def __str__(self):
         return self.matricule

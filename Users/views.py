@@ -1,10 +1,16 @@
-from rest_framework import generics, permissions
-from rest_framework.authtoken.models import Token
+from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.serializers import ModelSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 from .serializers import RegisterSerializer, UserSerializer
+from .forms import UserForm
+from .models import Profile  # Assurez-vous que le nom correspond à votre modèle
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -13,21 +19,41 @@ class RegisterView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
         user = User.objects.get(username=response.data['username'])
-        token = Token.objects.get_or_create(user=user)[0]
-        return Response({'token': token.key})
-    
+        
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        })
 
-class LoginView(ObtainAuthToken):
+class LoginView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        return Response({'token': response.data['token']})
+        username = request.data.get('username')
+        password = request.data.get('password')
+        
+        user = authenticate(username=username, password=password)
+        if user:
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            })
+        else:
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class LogoutView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        request.user.auth_token.delete()
-        return Response({'message': 'Logged out'})
+        try:
+            refresh_token = request.data.get('refresh')
+            if refresh_token:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+            return Response({'message': 'Logged out successfully'})
+        except Exception as e:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
 class ProfileView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UserSerializer
@@ -36,28 +62,21 @@ class ProfileView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         return self.request.user
 
-
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view, permission_classes
-from django.contrib.auth.models import User
-from rest_framework.response import Response
-from rest_framework import status
-
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def edit_user(request):
     user = request.user
-    data = request.data
+    try:
+        profile = Profile.objects.get(id=user.id)  # ou user.profile si OneToOneField related_name='profile'
+    except Profile.DoesNotExist:
+        return Response({'error': 'Profile does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
-    if 'username' in data:
-        user.username = data['username']
-    if 'email' in data:
-        user.email = data['email']
-    if 'password' in data:
-        user.set_password(data['password'])
-
-    user.save()
-    return Response({'message': 'User updated successfully.'}, status=status.HTTP_200_OK)
+    form = UserForm(request.data, instance=profile)
+    if form.is_valid():
+        form.save()
+        return Response({'message': 'Profile updated successfully.'}, status=status.HTTP_200_OK)
+    else:
+        return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
@@ -65,16 +84,6 @@ def delete_user(request):
     user = request.user
     user.delete()
     return Response({'message': 'User deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
-
-
-
-from rest_framework.decorators import api_view, permission_classes
-from django.contrib.auth.models import User
-from rest_framework.permissions import IsAdminUser
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.serializers import ModelSerializer
-
 
 class UserListSerializer(ModelSerializer):
     class Meta:
@@ -87,10 +96,6 @@ def list_users(request):
     users = User.objects.all()
     serializer = UserListSerializer(users, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-
-
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])

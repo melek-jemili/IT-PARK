@@ -6,7 +6,7 @@ class Profile(models.Model):
     matricule = models.CharField(primary_key=True, max_length=10, unique=True)
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
-    cin= models.IntegerField(max_length=8, unique=True)
+    cin= models.IntegerField(unique=True)
     fonction = models.CharField(max_length=50)
     dateNaissance = models.DateField()
     region = models.CharField(max_length=200)

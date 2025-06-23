@@ -21,8 +21,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     #ath('', include('parc_info.urls')),
     path('api/Users/', include('Users.urls')),
-   #path('maintenance/', include('Maintenance.urls')),
-   #path('unite/', include('Unite.urls')),
-   #path('equipements/', include('Equipements.urls')),
-   #path('ticket/', include('Ticket.urls')),
+   path('api/maintenance/', include('Maintenance.urls')),
+   path('api/unite/', include('Unite.urls')),
+   path('api/equipements/', include('Equipements.urls')),
+   path('api/ticket/', include('Ticket.urls')),
 ]

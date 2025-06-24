@@ -62,19 +62,26 @@ class ProfileView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         return self.request.user
 
-@api_view(['PUT'])
+@api_view(['POST', 'PUT'])
 @permission_classes([IsAuthenticated])
 def edit_user(request):
     user = request.user
+
     try:
-        profile = Profile.objects.get(id=user.id)  # ou user.profile si OneToOneField related_name='profile'
+        profile = Profile.objects.get(id=user.id)
+        created = False
     except Profile.DoesNotExist:
-        return Response({'error': 'Profile does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+        profile = Profile(id=user)  # crée un nouveau profil lié à l'utilisateur
+        created = True
 
     form = UserForm(request.data, instance=profile)
+
     if form.is_valid():
         form.save()
-        return Response({'message': 'Profile updated successfully.'}, status=status.HTTP_200_OK)
+        return Response(
+            {"message": "Profil créé avec succès." if created else "Profil mis à jour avec succès."},
+            status=status.HTTP_200_OK
+        )
     else:
         return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 

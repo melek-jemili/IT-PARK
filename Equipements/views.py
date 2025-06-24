@@ -24,7 +24,11 @@ class UserEquipementListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        equipements = Equipement.objects.filter(user=request.user)
+        unit_id = request.GET.get('unit_id')
+        if unit_id:
+            equipements = Equipement.objects.filter(unite_id=unit_id)
+        else:
+            equipements = Equipement.objects.all()
         serializer = EquipementSerializer(equipements, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
@@ -41,17 +45,16 @@ class EquipementSearchView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        description = request.GET.get('q', '').strip()
-        if not description:
-            return Response([])  # Si la description est vide, on retourne vide
+        pk = request.GET.get('q', '').strip()
+        if not pk:
+            return Response({'error': 'q parameter is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        unite_id = request.GET.get('unite', '').strip()
-        if unite_id:
-            equipements = Equipement.objects.filter(description__icontains=description, unite_id=unite_id)
-        else:
-            equipements = Equipement.objects.filter(description__icontains=description)
-        serializer = EquipementSerializer(equipements, many=True)
-        return Response(serializer.data)
+        equipement = Equipement.objects.filter(pk=pk).first()
+        if not equipement:
+            return Response({'error': 'Equipement not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = EquipementSerializer(equipement)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 class AdminEquipementListView(APIView):
     permission_classes = [permissions.IsAdminUser]

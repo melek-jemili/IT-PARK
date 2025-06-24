@@ -8,12 +8,12 @@ class Profile(models.Model):
     prenom = models.CharField(max_length=100)
     cin= models.IntegerField(unique=True)
     fonction = models.CharField(max_length=50)
-    dateNaissance = models.DateField()
+    dateNaissance = models.DateField(null=True, blank=True)
     region = models.CharField(max_length=200)
     email = models.EmailField(max_length=254, unique=True)
     telephone = models.CharField(max_length=15, unique=True)
     unite = models.ForeignKey(Unite, on_delete=models.CASCADE)
-    id=models.ForeignKey(User, on_delete=models.CASCADE, related_name='Profile')
+    id = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.matricule

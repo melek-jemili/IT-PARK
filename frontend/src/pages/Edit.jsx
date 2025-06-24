@@ -62,6 +62,7 @@ export default function Edit() {
         } catch (err) {
             if (err.response && err.response.data) {
                 setErrors(err.response.data);
+                console.log(err.response.data); // <--- Add this line
             } else {
                 alert('Erreur de mise à jour');
             }

@@ -55,12 +55,16 @@ class LogoutView(APIView):
         except Exception as e:
             return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
-class ProfileView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def profile_view(request):
+    try:
+        profile = Profile.objects.get(id=request.user)
+        serializer = UserSerializer(profile)
+        return Response(serializer.data)
+    except Profile.DoesNotExist:
+        return Response({"error": "Profil non trouvé"}, status=404)
 
-    def get_object(self):
-        return self.request.user
 
 @api_view(['POST', 'PUT'])
 @permission_classes([IsAuthenticated])

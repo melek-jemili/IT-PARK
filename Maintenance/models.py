@@ -1,6 +1,7 @@
 from django.db import models
 from Unite.models import Unite
 from Equipements.models import Equipement
+from Ticket.models import Ticket
 # Create your models here.
 class Maintenance(models.Model):
     idMaintenance = models.AutoField(primary_key=True)
@@ -11,6 +12,6 @@ class Maintenance(models.Model):
     typeMaintenance = models.CharField(max_length=50)
     unite = models.ForeignKey(Unite, on_delete=models.CASCADE)
     codeEquipement = models.ForeignKey(Equipement, on_delete=models.CASCADE)
-
+    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
     def __str__(self):
         return f'Maintenance {self.idMaintenance} - {self.typeMaintenance}'

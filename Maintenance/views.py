@@ -37,9 +37,12 @@ class DetailMaintenance(APIView):
         return Response(serializer.data)
     
 class ListeMaintenanceUtilisateur(APIView):
-        permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
-        def get(self, request):
-            maintenances = Maintenance.objects.filter(ticket__utilisateur=request.user)
-            serializer = MaintenanceSerializer(maintenances, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+    def get(self, request):
+        ticket_ids = request.query_params.getlist('ticket_ids')
+        if not ticket_ids:
+            return Response({'error': 'Veuillez fournir les IDs des tickets.'}, status=status.HTTP_400_BAD_REQUEST)
+        maintenances = Maintenance.objects.filter(ticket__id__in=ticket_ids, ticket__utilisateur=request.user)
+        serializer = MaintenanceSerializer(maintenances, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

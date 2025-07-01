@@ -23,12 +23,19 @@ class TicketCreation(APIView):
     
 
 class UserTicketListView(APIView):
-        permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
-        def get(self, request):
-            tickets = Ticket.objects.filter(user=request.user)
-            serializer = TicketSerializer(tickets, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+    def get(self, request):
+        # Récupérer le profil lié à l'utilisateur connecté
+        try:
+            profile = request.user.profile  # ou Profile.objects.get(id=request.user)
+        except Profile.DoesNotExist:
+            return Response({"error": "Profil non trouvé."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Filtrer les tickets par le profil
+        tickets = Ticket.objects.filter(personnel=profile)
+        serializer = TicketSerializer(tickets, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class TicketDetailView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -63,4 +70,3 @@ class AdminTicketListView(APIView):
         tickets = Ticket.objects.all()
         serializer = TicketSerializer(tickets, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    

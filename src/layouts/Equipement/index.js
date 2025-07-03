@@ -16,23 +16,26 @@ import DataTable from "examples/Tables/DataTable";
 
 // Hooks & data
 import React, { useState } from "react";
-import usemaintenancesTableData from "./data/maintenancetable";
+import useEquipementsTableData from "./data/equipementDataTable";
 import axios from "axios";
 
 function Tables() {
   const [open, setOpen] = useState(false);
-  const [maintenancedetails, setmaintenancedetails] = useState(null);
+  const [equipementDetails, setEquipementDetails] = useState(null);
   const [addOpen, setAddOpen] = useState(false);
 
   const [addForm, setAddForm] = useState({
-    unite: "",
-    codeEquipement: "",
-    ticket: "",
-    diagnostique: "",
-    datecréation: "",
-    bureauSource: "",
+    codeABarre: "",
+    nom: "",
+    numeroSerie: "",
+    modele: "",
     marque: "",
-    typeMaintenance: "",
+    type: "",
+    etat: "",
+    dateMiseEnService: "",
+    adresseIP: "",
+    adresseMAC: "",
+    unite: "",
   });
 
   const [addLoading, setAddLoading] = useState(false);
@@ -41,18 +44,18 @@ function Tables() {
   const handleVoir = async (id) => {
     try {
       const token = localStorage.getItem("access");
-      const response = await axios.get(`http://localhost:8000/api/maintenance/detail/${id}/`, {
+      const response = await axios.get(`http://localhost:8000/api/equipements/detail/${id}/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setmaintenancedetails(response.data);
+      setEquipementDetails(response.data);
       setOpen(true);
     } catch (error) {
-      console.error("Erreur lors de la récupération de la maintenance :", error);
+      console.error("Erreur lors de la récupération de l'équipement :", error);
     }
   };
 
   const user = localStorage.getItem("personnel");
-  const { columns, rows } = usemaintenancesTableData(user, handleVoir);
+  const { columns, rows } = useEquipementsTableData(user, handleVoir);
 
   return (
     <DashboardLayout>
@@ -75,10 +78,10 @@ function Tables() {
                 justifyContent="space-between"
               >
                 <MDTypography variant="h6" color="white">
-                  Les Maintenances
+                  Les Équipements
                 </MDTypography>
                 <MDButton color="white" variant="contained" onClick={() => setAddOpen(true)}>
-                  Créer une maintenance
+                  Ajouter un équipement
                 </MDButton>
               </MDBox>
               <MDBox pt={3}>
@@ -104,26 +107,24 @@ function Tables() {
                       minWidth: 300,
                     }}
                   >
-                    {maintenancedetails ? (
+                    {equipementDetails ? (
                       <>
-                        <MDTypography variant="h6">Détails de la maintenance</MDTypography>
-                        <MDTypography>ID: {maintenancedetails.idMaintenance}</MDTypography>
-                        <MDTypography>Diagnostique: {maintenancedetails.diagnostique}</MDTypography>
+                        <MDTypography variant="h6">Détails équipement</MDTypography>
+                        <MDTypography>Code à barre: {equipementDetails.codeABarre}</MDTypography>
+                        <MDTypography>Nom: {equipementDetails.nom}</MDTypography>
                         <MDTypography>
-                          Bureau Source: {maintenancedetails.bureauSource}
+                          Numéro de série: {equipementDetails.numeroSerie}
                         </MDTypography>
+                        <MDTypography>Modèle: {equipementDetails.modele}</MDTypography>
+                        <MDTypography>Marque: {equipementDetails.marque}</MDTypography>
+                        <MDTypography>Type: {equipementDetails.type}</MDTypography>
+                        <MDTypography>État: {equipementDetails.etat}</MDTypography>
                         <MDTypography>
-                          Date de création: {maintenancedetails.datecréation}
+                          Date de mise en service: {equipementDetails.dateMiseEnService}
                         </MDTypography>
-                        <MDTypography>
-                          Type de maintenance: {maintenancedetails.typeMaintenance}
-                        </MDTypography>
-                        <MDTypography>Marque: {maintenancedetails.marque}</MDTypography>
-                        <MDTypography>Unité: {maintenancedetails.unite}</MDTypography>
-                        <MDTypography>Équipement: {maintenancedetails.codeEquipement}</MDTypography>
-                        <MDTypography>
-                          Ticket correspondant: {maintenancedetails.ticket}
-                        </MDTypography>
+                        <MDTypography>Adresse IP: {equipementDetails.adresseIP}</MDTypography>
+                        <MDTypography>Adresse MAC: {equipementDetails.adresseMAC}</MDTypography>
+                        <MDTypography>Unité: {equipementDetails.unite}</MDTypography>
                       </>
                     ) : (
                       <MDTypography>Chargement...</MDTypography>
@@ -131,7 +132,7 @@ function Tables() {
                   </MDBox>
                 </Modal>
 
-                {/* Modal Ajout maintenance */}
+                {/* Modal Ajout équipement */}
                 <Modal open={addOpen} onClose={() => setAddOpen(false)}>
                   <MDBox
                     sx={{
@@ -146,7 +147,7 @@ function Tables() {
                     }}
                   >
                     <MDTypography variant="h6" mb={2}>
-                      Ajouter une maintenance
+                      Ajouter un équipement
                     </MDTypography>
                     <form
                       onSubmit={async (e) => {
@@ -157,16 +158,19 @@ function Tables() {
                           const token = localStorage.getItem("access");
 
                           await axios.post(
-                            "http://localhost:8000/api/maintenance/add/",
+                            "http://localhost:8000/api/equipements/add/",
                             {
-                              unite: parseInt(addForm.unite),
-                              codeEquipement: parseInt(addForm.codeEquipement),
-                              ticket: parseInt(addForm.ticket),
-                              diagnostique: addForm.diagnostique,
-                              datecréation: addForm.datecréation,
-                              bureauSource: addForm.bureauSource,
+                              codeABarre: parseInt(addForm.codeABarre),
+                              nom: addForm.nom,
+                              numeroSerie: parseInt(addForm.numeroSerie),
+                              modele: addForm.modele,
                               marque: addForm.marque,
-                              typeMaintenance: addForm.typeMaintenance,
+                              type: addForm.type,
+                              etat: addForm.etat,
+                              dateMiseEnService: addForm.dateMiseEnService,
+                              adresseIP: addForm.adresseIP,
+                              adresseMAC: addForm.adresseMAC,
+                              unite: parseInt(addForm.unite),
                             },
                             {
                               headers: { Authorization: `Bearer ${token}` },
@@ -175,18 +179,21 @@ function Tables() {
 
                           setAddOpen(false);
                           setAddForm({
-                            unite: "",
-                            codeEquipement: "",
-                            ticket: "",
-                            diagnostique: "",
-                            datecréation: "",
-                            bureauSource: "",
+                            codeABarre: "",
+                            nom: "",
+                            numeroSerie: "",
+                            modele: "",
                             marque: "",
-                            typeMaintenance: "",
+                            type: "",
+                            etat: "",
+                            dateMiseEnService: "",
+                            adresseIP: "",
+                            adresseMAC: "",
+                            unite: "",
                           });
                           window.location.reload();
                         } catch (err) {
-                          setAddError("Erreur lors de la création de la maintenance.");
+                          setAddError("Erreur lors de la création de l'équipement.");
                           console.error(err.response?.data || err.message);
                         } finally {
                           setAddLoading(false);
@@ -194,14 +201,21 @@ function Tables() {
                       }}
                     >
                       {[
-                        { label: "Unité (ID)", key: "unite" },
-                        { label: "Équipement (ID)", key: "codeEquipement" },
-                        { label: "Ticket (ID)", key: "ticket" },
-                        { label: "Diagnostique", key: "diagnostique" },
-                        { label: "Type de maintenance", key: "typeMaintenance" },
+                        { label: "Code à barre", key: "codeABarre", type: "number" },
+                        { label: "Nom", key: "nom" },
+                        { label: "Numéro de série", key: "numeroSerie", type: "number" },
+                        { label: "Modèle", key: "modele" },
                         { label: "Marque", key: "marque" },
-                        { label: "Bureau Source", key: "bureauSource" },
-                        { label: "Date de création", key: "datecréation", type: "datetime-local" },
+                        { label: "Type", key: "type" },
+                        { label: "État", key: "etat" },
+                        {
+                          label: "Date de mise en service",
+                          key: "dateMiseEnService",
+                          type: "date",
+                        },
+                        { label: "Adresse IP", key: "adresseIP" },
+                        { label: "Adresse MAC", key: "adresseMAC" },
+                        { label: "Unité (ID)", key: "unite", type: "number" },
                       ].map((field) => (
                         <MDBox mb={2} key={field.key}>
                           <MDTypography>{field.label}</MDTypography>

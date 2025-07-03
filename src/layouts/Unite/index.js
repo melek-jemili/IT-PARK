@@ -16,23 +16,28 @@ import DataTable from "examples/Tables/DataTable";
 
 // Hooks & data
 import React, { useState } from "react";
-import usemaintenancesTableData from "./data/maintenancetable";
+import useUniteTableData from "./data/uniteDataTable";
 import axios from "axios";
 
 function Tables() {
   const [open, setOpen] = useState(false);
-  const [maintenancedetails, setmaintenancedetails] = useState(null);
+  const [uniteDetails, setUniteDetails] = useState(null);
   const [addOpen, setAddOpen] = useState(false);
 
   const [addForm, setAddForm] = useState({
-    unite: "",
-    codeEquipement: "",
-    ticket: "",
-    diagnostique: "",
-    datecréation: "",
-    bureauSource: "",
-    marque: "",
-    typeMaintenance: "",
+    codePostal: "",
+    nom: "",
+    classe: "",
+    gouvernorat: "",
+    adresse: "",
+    nombreEmployes: "",
+    nombreGuichets: "",
+    chefUnité: "",
+    plageIP: "",
+    typeLiason1: "",
+    typeLiason2: "",
+    idLiaison1: "",
+    idLiaison2: "",
   });
 
   const [addLoading, setAddLoading] = useState(false);
@@ -41,18 +46,18 @@ function Tables() {
   const handleVoir = async (id) => {
     try {
       const token = localStorage.getItem("access");
-      const response = await axios.get(`http://localhost:8000/api/maintenance/detail/${id}/`, {
+      const response = await axios.get(`http://localhost:8000/api/unite/detail/${id}/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setmaintenancedetails(response.data);
+      setUniteDetails(response.data);
       setOpen(true);
     } catch (error) {
-      console.error("Erreur lors de la récupération de la maintenance :", error);
+      console.error("Erreur lors de la récupération de l'unité :", error);
     }
   };
 
   const user = localStorage.getItem("personnel");
-  const { columns, rows } = usemaintenancesTableData(user, handleVoir);
+  const { columns, rows } = useUniteTableData(user, handleVoir);
 
   return (
     <DashboardLayout>
@@ -75,10 +80,10 @@ function Tables() {
                 justifyContent="space-between"
               >
                 <MDTypography variant="h6" color="white">
-                  Les Maintenances
+                  Les Unités
                 </MDTypography>
                 <MDButton color="white" variant="contained" onClick={() => setAddOpen(true)}>
-                  Créer une maintenance
+                  Ajouter une unité
                 </MDButton>
               </MDBox>
               <MDBox pt={3}>
@@ -102,28 +107,32 @@ function Tables() {
                       boxShadow: 24,
                       p: 4,
                       minWidth: 300,
+                      maxHeight: "80vh",
+                      overflowY: "auto",
                     }}
                   >
-                    {maintenancedetails ? (
+                    {uniteDetails ? (
                       <>
-                        <MDTypography variant="h6">Détails de la maintenance</MDTypography>
-                        <MDTypography>ID: {maintenancedetails.idMaintenance}</MDTypography>
-                        <MDTypography>Diagnostique: {maintenancedetails.diagnostique}</MDTypography>
+                        <MDTypography variant="h6" mb={2}>
+                          Détails unité
+                        </MDTypography>
+                        <MDTypography>Code postal : {uniteDetails.codePostal}</MDTypography>
+                        <MDTypography>Nom : {uniteDetails.nom}</MDTypography>
+                        <MDTypography>Classe : {uniteDetails.classe}</MDTypography>
+                        <MDTypography>Gouvernorat : {uniteDetails.gouvernorat}</MDTypography>
+                        <MDTypography>Adresse : {uniteDetails.adresse}</MDTypography>
                         <MDTypography>
-                          Bureau Source: {maintenancedetails.bureauSource}
+                          Nombre d&apos;employés : {uniteDetails.nombreEmployes}
                         </MDTypography>
                         <MDTypography>
-                          Date de création: {maintenancedetails.datecréation}
+                          Nombre de guichets : {uniteDetails.nombreGuichets}
                         </MDTypography>
-                        <MDTypography>
-                          Type de maintenance: {maintenancedetails.typeMaintenance}
-                        </MDTypography>
-                        <MDTypography>Marque: {maintenancedetails.marque}</MDTypography>
-                        <MDTypography>Unité: {maintenancedetails.unite}</MDTypography>
-                        <MDTypography>Équipement: {maintenancedetails.codeEquipement}</MDTypography>
-                        <MDTypography>
-                          Ticket correspondant: {maintenancedetails.ticket}
-                        </MDTypography>
+                        <MDTypography>Chef unité : {uniteDetails.chefUnité}</MDTypography>
+                        <MDTypography>Plage IP : {uniteDetails.plageIP}</MDTypography>
+                        <MDTypography>Type Liaison 1 : {uniteDetails.typeLiason1}</MDTypography>
+                        <MDTypography>Type Liaison 2 : {uniteDetails.typeLiason2}</MDTypography>
+                        <MDTypography>ID Liaison 1 : {uniteDetails.idLiaison1}</MDTypography>
+                        <MDTypography>ID Liaison 2 : {uniteDetails.idLiaison2}</MDTypography>
                       </>
                     ) : (
                       <MDTypography>Chargement...</MDTypography>
@@ -131,7 +140,7 @@ function Tables() {
                   </MDBox>
                 </Modal>
 
-                {/* Modal Ajout maintenance */}
+                {/* Modal Ajout unité */}
                 <Modal open={addOpen} onClose={() => setAddOpen(false)}>
                   <MDBox
                     sx={{
@@ -143,10 +152,12 @@ function Tables() {
                       boxShadow: 24,
                       p: 4,
                       minWidth: 300,
+                      maxHeight: "80vh",
+                      overflowY: "auto",
                     }}
                   >
                     <MDTypography variant="h6" mb={2}>
-                      Ajouter une maintenance
+                      Ajouter une unité
                     </MDTypography>
                     <form
                       onSubmit={async (e) => {
@@ -157,16 +168,21 @@ function Tables() {
                           const token = localStorage.getItem("access");
 
                           await axios.post(
-                            "http://localhost:8000/api/maintenance/add/",
+                            "http://localhost:8000/api/unite/add/",
                             {
-                              unite: parseInt(addForm.unite),
-                              codeEquipement: parseInt(addForm.codeEquipement),
-                              ticket: parseInt(addForm.ticket),
-                              diagnostique: addForm.diagnostique,
-                              datecréation: addForm.datecréation,
-                              bureauSource: addForm.bureauSource,
-                              marque: addForm.marque,
-                              typeMaintenance: addForm.typeMaintenance,
+                              codePostal: parseInt(addForm.codePostal),
+                              nom: addForm.nom,
+                              classe: addForm.classe,
+                              gouvernorat: addForm.gouvernorat,
+                              adresse: addForm.adresse,
+                              nombreEmployes: parseInt(addForm.nombreEmployes),
+                              nombreGuichets: parseInt(addForm.nombreGuichets),
+                              chefUnité: addForm.chefUnité,
+                              plageIP: addForm.plageIP,
+                              typeLiason1: addForm.typeLiason1,
+                              typeLiason2: addForm.typeLiason2,
+                              idLiaison1: parseInt(addForm.idLiaison1) || 0,
+                              idLiaison2: parseInt(addForm.idLiaison2) || 0,
                             },
                             {
                               headers: { Authorization: `Bearer ${token}` },
@@ -175,18 +191,23 @@ function Tables() {
 
                           setAddOpen(false);
                           setAddForm({
-                            unite: "",
-                            codeEquipement: "",
-                            ticket: "",
-                            diagnostique: "",
-                            datecréation: "",
-                            bureauSource: "",
-                            marque: "",
-                            typeMaintenance: "",
+                            codePostal: "",
+                            nom: "",
+                            classe: "",
+                            gouvernorat: "",
+                            adresse: "",
+                            nombreEmployes: "",
+                            nombreGuichets: "",
+                            chefUnité: "",
+                            plageIP: "",
+                            typeLiason1: "",
+                            typeLiason2: "",
+                            idLiaison1: "",
+                            idLiaison2: "",
                           });
                           window.location.reload();
                         } catch (err) {
-                          setAddError("Erreur lors de la création de la maintenance.");
+                          setAddError("Erreur lors de la création de l'unité.");
                           console.error(err.response?.data || err.message);
                         } finally {
                           setAddLoading(false);
@@ -194,14 +215,19 @@ function Tables() {
                       }}
                     >
                       {[
-                        { label: "Unité (ID)", key: "unite" },
-                        { label: "Équipement (ID)", key: "codeEquipement" },
-                        { label: "Ticket (ID)", key: "ticket" },
-                        { label: "Diagnostique", key: "diagnostique" },
-                        { label: "Type de maintenance", key: "typeMaintenance" },
-                        { label: "Marque", key: "marque" },
-                        { label: "Bureau Source", key: "bureauSource" },
-                        { label: "Date de création", key: "datecréation", type: "datetime-local" },
+                        { label: "Code postal", key: "codePostal", type: "number" },
+                        { label: "Nom", key: "nom" },
+                        { label: "Classe", key: "classe" },
+                        { label: "Gouvernorat", key: "gouvernorat" },
+                        { label: "Adresse", key: "adresse" },
+                        { label: "Nombre d'employés", key: "nombreEmployes", type: "number" },
+                        { label: "Nombre de guichets", key: "nombreGuichets", type: "number" },
+                        { label: "Chef d'unité", key: "chefUnité" },
+                        { label: "Plage IP", key: "plageIP" },
+                        { label: "Type Liaison 1", key: "typeLiason1" },
+                        { label: "Type Liaison 2", key: "typeLiason2" },
+                        { label: "ID Liaison 1", key: "idLiaison1", type: "number" },
+                        { label: "ID Liaison 2", key: "idLiaison2", type: "number" },
                       ].map((field) => (
                         <MDBox mb={2} key={field.key}>
                           <MDTypography>{field.label}</MDTypography>

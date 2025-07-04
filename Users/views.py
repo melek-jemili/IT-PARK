@@ -129,3 +129,12 @@ def change_password(request):
     user.save()
 
     return Response({"message": "Password changed successfully."}, status=status.HTTP_200_OK)
+
+
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import MyTokenObtainPairSerializer
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
+

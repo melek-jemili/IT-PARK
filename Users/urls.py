@@ -10,4 +10,6 @@ urlpatterns = [
     path('delete/', delete_user, name='delete_user'),
     path('list/', list_users, name='list_users'),
     path(('change_password/'), change_password, name='change_password'),
+    path('statsTotal/', statistique_utilisateursTotal, name='user_stats'),
+    path('statsCategorie/', statistique_utilisateursCatégorie, name='user_stats_category'),
 ]

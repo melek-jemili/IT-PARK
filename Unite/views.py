@@ -23,6 +23,8 @@ class UniteDetailView(APIView):
         serializer = UniteSerializer(unite)
         return Response(serializer.data)
 
+class UniteUpdateView(APIView):
+    permission_classes = [permissions.IsAdminUser]
     def put(self, request, pk):
         unite = get_object_or_404(Unite, pk=pk)
         serializer = UniteSerializer(unite, data=request.data)
@@ -59,3 +61,33 @@ class AdminUniteListView(APIView):
         unites = Unite.objects.all()
         serializer = UniteSerializer(unites, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+#Statistiques pour Dashboard 
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAdminUser
+from rest_framework.response import Response
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def statistique_unitTotal(request):
+    total = Unite.objects.count()
+    return Response({'Unités_Totales': total})
+
+
+from django.db.models import Count
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def statistiques_unites_par_gouvernorat(request):
+    data = (
+        Unite.objects
+        .values('gouvernorat')
+        .annotate(total=Count('codePostal'))
+        .order_by('gouvernorat')
+    )
+
+    # format: [{gouvernorat: "Tunis", total: 5}, ...]
+    return Response(data)

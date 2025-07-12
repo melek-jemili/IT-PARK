@@ -85,3 +85,43 @@ class EquipementDeleteView(APIView):
         equipement = get_object_or_404(Equipement, pk=pk)
         equipement.delete()
         return Response({'message': 'Equipement supprimé avec succès.'}, status=status.HTTP_204_NO_CONTENT)
+
+
+
+#Statistiques pour Dashboard 
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAdminUser
+from rest_framework.response import Response
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def statistique_equipementsTotal(request):
+    total = Equipement.objects.count()
+    return Response({'Equipements_Totales': total})
+
+
+from django.db.models import Count
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def statistiques_equipement_par_statut(request):
+    data = (
+        Equipement.objects
+        .values('etat')
+        .annotate(total=Count('codeABarre'))
+    )
+
+    return Response(data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def equipement_par_unite(request):
+    data = (
+        Equipement.objects
+        .values("unite__codePostal")
+        .annotate(total=Count("codeABarre"))
+        .order_by("-total")
+    )
+    return Response(data)

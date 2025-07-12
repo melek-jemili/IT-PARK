@@ -9,5 +9,8 @@ urlpatterns = [
     path('add/', EquipementCreation.as_view(), name='equipement_add'),    
     path('search/', EquipementSearchView.as_view(), name='equipement_search'),
     path('list-for-user/', UserEquipementListView.as_view(), name='equipement_list_user'),
+    path('stats/', statistique_equipementsTotal, name='equipement_stats'),
+    path('statsParUnite/', equipement_par_unite, name='equipement_stats_unite'),
+    path('statsParStatut/', statistiques_equipement_par_statut, name='equipement_stats_statut'),
     
 ]

@@ -12,8 +12,8 @@ class Unite(models.Model):
     plageIP = models.CharField(max_length=100, unique=True)
     typeLiason1 = models.CharField(max_length=50)
     typeLiason2 = models.CharField(max_length=50)
-    idLiaison1 = models.IntegerField(default=0)  # Ajoutez un default adapté à votre logique métier
-    idLiaison2 = models.IntegerField(default=0)  # Ajoutez un default adapté à votre logique métier
+    idLiaison1 = models.IntegerField(default=0) 
+    idLiaison2 = models.IntegerField(default=0)  
 
     def __str__(self):
         return str(self.codePostal)

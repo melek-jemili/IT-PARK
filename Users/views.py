@@ -138,3 +138,29 @@ class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
 
+#Statistiques pour Dashboard 
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAdminUser
+from rest_framework.response import Response
+from django.contrib.auth.models import User
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def statistique_utilisateursTotal(request):
+    total = User.objects.count()
+    return Response({'total_utilisateurs': total})
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])  # accessible uniquement aux admins
+def statistique_utilisateursCatégorie(request):
+    total = User.objects.count()
+    actifs = User.objects.filter(is_active=True).count()
+    admins = User.objects.filter(is_staff=True).count()
+
+    return Response({
+        'total_utilisateurs': total,
+        'utilisateurs_actifs': actifs,
+        'utilisateurs_admins': admins,
+    })

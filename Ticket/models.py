@@ -13,7 +13,7 @@ class Ticket(models.Model):
     ETAT_CHOICES = [
         ('ouvert', 'Ouvert'),
         ('encours', 'En cours'),
-        ('ferme', 'Fermé'),
+        ('fermé', 'Fermé'),
     ]
     etat = models.CharField(max_length=50, choices=ETAT_CHOICES, default='ferme')
     priorite = models.CharField(max_length=50)

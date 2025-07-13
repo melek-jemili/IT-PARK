@@ -1,5 +1,3 @@
-// Cover.jsx
-
 // @mui & react-router-dom
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -18,6 +16,7 @@ import CoverLayout from "layouts/authentication/components/CoverLayout";
 
 // Image
 import bgImage from "assets/images/bg-sign-up-cover.jpeg";
+import logo from "assets/images/la-poste-tunisienne-logo-png_seeklogo-359957.ico";
 
 function Cover() {
   const navigate = useNavigate();
@@ -40,7 +39,6 @@ function Cover() {
         password,
       });
 
-      // Optionnel : récupérer les tokens (si l’API les renvoie)
       const { access, refresh } = response.data || {};
 
       if (access && refresh) {
@@ -48,11 +46,16 @@ function Cover() {
         localStorage.setItem("refresh", refresh);
       }
 
-      // Redirection après inscription
       navigate("/authentication/sign-in");
     } catch (err) {
-      console.error(err);
-      setError("Échec de l'inscription. Vérifiez vos informations.");
+      console.error("Erreur API complète:", err.response);
+      console.error("Données de l'erreur:", err.response?.data);
+      setError(
+        "Échec de l'inscription : " +
+          (typeof err.response?.data === "string"
+            ? err.response.data
+            : JSON.stringify(err.response?.data))
+      );
     }
   };
 
@@ -70,6 +73,7 @@ function Cover() {
           mb={1}
           textAlign="center"
         >
+          <img src={logo} alt="logo" style={{ width: 50, height: 50 }} />
           <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
             La Poste Tunisienne
           </MDTypography>
@@ -77,6 +81,7 @@ function Cover() {
             Créez un compte pour commencer
           </MDTypography>
         </MDBox>
+
         <MDBox pt={4} pb={3} px={3}>
           <MDBox component="form" role="form" onSubmit={handleSubmit}>
             <MDBox mb={2}>

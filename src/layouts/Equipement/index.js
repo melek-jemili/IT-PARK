@@ -2,6 +2,8 @@
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import Modal from "@mui/material/Modal";
+import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
 
 // Material Dashboard components
 import MDBox from "components/MDBox";
@@ -22,8 +24,8 @@ import axios from "axios";
 function Tables() {
   const [open, setOpen] = useState(false);
   const [equipementDetails, setEquipementDetails] = useState(null);
-  const [addOpen, setAddOpen] = useState(false);
 
+  const [addOpen, setAddOpen] = useState(false);
   const [addForm, setAddForm] = useState({
     codeABarre: "",
     nom: "",
@@ -37,9 +39,57 @@ function Tables() {
     adresseMAC: "",
     unite: "",
   });
-
   const [addLoading, setAddLoading] = useState(false);
   const [addError, setAddError] = useState("");
+
+  const [editOpen, setEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState({
+    codeABarre: "",
+    nom: "",
+    numeroSerie: "",
+    modele: "",
+    marque: "",
+    type: "",
+    etat: "",
+    dateMiseEnService: "",
+    adresseIP: "",
+    adresseMAC: "",
+    unite: "",
+  });
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState("");
+
+  const etatOptions = [
+    { value: "fonctionnel", label: "Fonctionnel" },
+    { value: "en panne", label: "En panne" },
+    { value: "hors-service", label: "Hors-service" },
+  ];
+
+  const user = localStorage.getItem("personnel");
+  const isAdminUser = localStorage.getItem("isAdminUser") === "true";
+
+  const formModalStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    bgcolor: "background.paper",
+    boxShadow: 24,
+    p: 3,
+    borderRadius: 2,
+    width: "90%",
+    maxWidth: 400,
+    maxHeight: "90vh",
+    overflowY: "auto",
+  };
+
+  const inputStyle = {
+    width: "100%",
+    padding: "8px",
+    borderRadius: "6px",
+    border: "1px solid #ccc",
+    fontSize: "0.875rem",
+  };
 
   const handleVoir = async (id) => {
     try {
@@ -53,9 +103,130 @@ function Tables() {
       console.error("Erreur lors de la récupération de l'équipement :", error);
     }
   };
-
-  const user = localStorage.getItem("personnel");
   const { columns, rows } = useEquipementsTableData(user, handleVoir);
+
+  const openEditModal = (equipement) => {
+    setEditForm({ ...equipement });
+    setEditError("");
+    setEditOpen(true);
+    setOpen(false);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setEditLoading(true);
+    setEditError("");
+    try {
+      const token = localStorage.getItem("access");
+      await axios.put(
+        `http://localhost:8000/api/equipements/edit/${editForm.codeABarre}/`,
+        {
+          ...editForm,
+          codeABarre: parseInt(editForm.codeABarre),
+          numeroSerie: parseInt(editForm.numeroSerie),
+          unite: parseInt(editForm.unite),
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setEditOpen(false);
+      window.location.reload();
+    } catch (err) {
+      setEditError("Erreur lors de la modification de l'équipement.");
+      console.error(err);
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const handleAddSubmit = async (e) => {
+    e.preventDefault();
+    setAddLoading(true);
+    setAddError("");
+    try {
+      const token = localStorage.getItem("access");
+      await axios.post(
+        "http://localhost:8000/api/equipements/add/",
+        {
+          ...addForm,
+          codeABarre: parseInt(addForm.codeABarre),
+          numeroSerie: parseInt(addForm.numeroSerie),
+          unite: parseInt(addForm.unite),
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setAddOpen(false);
+      setAddForm({
+        codeABarre: "",
+        nom: "",
+        numeroSerie: "",
+        modele: "",
+        marque: "",
+        type: "",
+        etat: "",
+        dateMiseEnService: "",
+        adresseIP: "",
+        adresseMAC: "",
+        unite: "",
+      });
+      window.location.reload();
+    } catch (err) {
+      setAddError("Erreur lors de la création de l'équipement.");
+      console.error(err);
+    } finally {
+      setAddLoading(false);
+    }
+  };
+
+  const renderFields = (form, setForm, mode = "add") => (
+    <>
+      {[
+        "codeABarre",
+        "nom",
+        "numeroSerie",
+        "modele",
+        "marque",
+        "type",
+        "dateMiseEnService",
+        "adresseIP",
+        "adresseMAC",
+        "unite",
+      ].map((key) => (
+        <MDBox mb={2} key={key}>
+          <MDTypography>{key}</MDTypography>
+          <input
+            type={
+              key === "dateMiseEnService"
+                ? "date"
+                : key === "numeroSerie" || key === "codeABarre" || key === "unite"
+                ? "number"
+                : "text"
+            }
+            value={form[key]}
+            onChange={(e) => setForm((prev) => ({ ...prev, [key]: e.target.value }))}
+            required
+            style={inputStyle}
+          />
+        </MDBox>
+      ))}
+
+      <MDBox mb={2}>
+        <MDTypography>État</MDTypography>
+        <TextField
+          select
+          fullWidth
+          value={form.etat}
+          onChange={(e) => setForm((prev) => ({ ...prev, etat: e.target.value }))}
+          required
+        >
+          {etatOptions.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </TextField>
+      </MDBox>
+    </>
+  );
 
   return (
     <DashboardLayout>
@@ -93,38 +264,27 @@ function Tables() {
                   noEndBorder
                 />
 
-                {/* Modal de détails */}
+                {/* Modal Détails */}
                 <Modal open={open} onClose={() => setOpen(false)}>
-                  <MDBox
-                    sx={{
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      bgcolor: "background.paper",
-                      boxShadow: 24,
-                      p: 4,
-                      minWidth: 300,
-                    }}
-                  >
+                  <MDBox sx={formModalStyle}>
                     {equipementDetails ? (
                       <>
-                        <MDTypography variant="h6">Détails équipement</MDTypography>
-                        <MDTypography>Code à barre: {equipementDetails.codeABarre}</MDTypography>
-                        <MDTypography>Nom: {equipementDetails.nom}</MDTypography>
-                        <MDTypography>
-                          Numéro de série: {equipementDetails.numeroSerie}
+                        <MDTypography variant="h6" mb={2}>
+                          Détails équipement
                         </MDTypography>
-                        <MDTypography>Modèle: {equipementDetails.modele}</MDTypography>
-                        <MDTypography>Marque: {equipementDetails.marque}</MDTypography>
-                        <MDTypography>Type: {equipementDetails.type}</MDTypography>
-                        <MDTypography>État: {equipementDetails.etat}</MDTypography>
-                        <MDTypography>
-                          Date de mise en service: {equipementDetails.dateMiseEnService}
-                        </MDTypography>
-                        <MDTypography>Adresse IP: {equipementDetails.adresseIP}</MDTypography>
-                        <MDTypography>Adresse MAC: {equipementDetails.adresseMAC}</MDTypography>
-                        <MDTypography>Unité: {equipementDetails.unite}</MDTypography>
+                        {Object.entries(equipementDetails).map(([key, value]) => (
+                          <MDTypography key={key}>{`${key}: ${value}`}</MDTypography>
+                        ))}
+                        {isAdminUser && (
+                          <MDButton
+                            onClick={() => openEditModal(equipementDetails)}
+                            color="info"
+                            variant="outlined"
+                            sx={{ mt: 2 }}
+                          >
+                            Modifier
+                          </MDButton>
+                        )}
                       </>
                     ) : (
                       <MDTypography>Chargement...</MDTypography>
@@ -132,120 +292,48 @@ function Tables() {
                   </MDBox>
                 </Modal>
 
-                {/* Modal Ajout équipement */}
+                {/* Modal Ajout */}
                 <Modal open={addOpen} onClose={() => setAddOpen(false)}>
-                  <MDBox
-                    sx={{
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      bgcolor: "background.paper",
-                      boxShadow: 24,
-                      p: 4,
-                      minWidth: 300,
-                    }}
-                  >
+                  <MDBox component="form" onSubmit={handleAddSubmit} sx={formModalStyle}>
                     <MDTypography variant="h6" mb={2}>
                       Ajouter un équipement
                     </MDTypography>
-                    <form
-                      onSubmit={async (e) => {
-                        e.preventDefault();
-                        setAddLoading(true);
-                        setAddError("");
-                        try {
-                          const token = localStorage.getItem("access");
+                    {renderFields(addForm, setAddForm)}
+                    {addError && (
+                      <MDTypography color="error" mb={2}>
+                        {addError}
+                      </MDTypography>
+                    )}
+                    <MDBox display="flex" justifyContent="flex-end">
+                      <MDButton type="submit" color="info" variant="gradient" disabled={addLoading}>
+                        {addLoading ? "Ajout..." : "Enregistrer"}
+                      </MDButton>
+                    </MDBox>
+                  </MDBox>
+                </Modal>
 
-                          await axios.post(
-                            "http://localhost:8000/api/equipements/add/",
-                            {
-                              codeABarre: parseInt(addForm.codeABarre),
-                              nom: addForm.nom,
-                              numeroSerie: parseInt(addForm.numeroSerie),
-                              modele: addForm.modele,
-                              marque: addForm.marque,
-                              type: addForm.type,
-                              etat: addForm.etat,
-                              dateMiseEnService: addForm.dateMiseEnService,
-                              adresseIP: addForm.adresseIP,
-                              adresseMAC: addForm.adresseMAC,
-                              unite: parseInt(addForm.unite),
-                            },
-                            {
-                              headers: { Authorization: `Bearer ${token}` },
-                            }
-                          );
-
-                          setAddOpen(false);
-                          setAddForm({
-                            codeABarre: "",
-                            nom: "",
-                            numeroSerie: "",
-                            modele: "",
-                            marque: "",
-                            type: "",
-                            etat: "",
-                            dateMiseEnService: "",
-                            adresseIP: "",
-                            adresseMAC: "",
-                            unite: "",
-                          });
-                          window.location.reload();
-                        } catch (err) {
-                          setAddError("Erreur lors de la création de l'équipement.");
-                          console.error(err.response?.data || err.message);
-                        } finally {
-                          setAddLoading(false);
-                        }
-                      }}
-                    >
-                      {[
-                        { label: "Code à barre", key: "codeABarre", type: "number" },
-                        { label: "Nom", key: "nom" },
-                        { label: "Numéro de série", key: "numeroSerie", type: "number" },
-                        { label: "Modèle", key: "modele" },
-                        { label: "Marque", key: "marque" },
-                        { label: "Type", key: "type" },
-                        { label: "État", key: "etat" },
-                        {
-                          label: "Date de mise en service",
-                          key: "dateMiseEnService",
-                          type: "date",
-                        },
-                        { label: "Adresse IP", key: "adresseIP" },
-                        { label: "Adresse MAC", key: "adresseMAC" },
-                        { label: "Unité (ID)", key: "unite", type: "number" },
-                      ].map((field) => (
-                        <MDBox mb={2} key={field.key}>
-                          <MDTypography>{field.label}</MDTypography>
-                          <input
-                            type={field.type || "text"}
-                            value={addForm[field.key]}
-                            onChange={(e) =>
-                              setAddForm({ ...addForm, [field.key]: e.target.value })
-                            }
-                            required
-                            style={{ width: "100%" }}
-                          />
-                        </MDBox>
-                      ))}
-                      {addError && (
-                        <MDTypography color="error" mb={2}>
-                          {addError}
-                        </MDTypography>
-                      )}
-                      <MDBox display="flex" justifyContent="flex-end">
-                        <MDButton
-                          type="submit"
-                          color="info"
-                          variant="gradient"
-                          disabled={addLoading}
-                        >
-                          {addLoading ? "Ajout..." : "Enregistrer"}
-                        </MDButton>
-                      </MDBox>
-                    </form>
+                {/* Modal Modification */}
+                <Modal open={editOpen} onClose={() => setEditOpen(false)}>
+                  <MDBox component="form" onSubmit={handleEditSubmit} sx={formModalStyle}>
+                    <MDTypography variant="h6" mb={2}>
+                      Modifier un équipement
+                    </MDTypography>
+                    {renderFields(editForm, setEditForm, "edit")}
+                    {editError && (
+                      <MDTypography color="error" mb={2}>
+                        {editError}
+                      </MDTypography>
+                    )}
+                    <MDBox display="flex" justifyContent="flex-end">
+                      <MDButton
+                        type="submit"
+                        color="info"
+                        variant="gradient"
+                        disabled={editLoading}
+                      >
+                        {editLoading ? "Modification..." : "Enregistrer"}
+                      </MDButton>
+                    </MDBox>
                   </MDBox>
                 </Modal>
               </MDBox>

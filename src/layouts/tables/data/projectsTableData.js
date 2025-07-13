@@ -1,182 +1,93 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/function-component-definition */
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
 
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
-// @mui material components
-import Icon from "@mui/material/Icon";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDAvatar from "components/MDAvatar";
-import MDProgress from "components/MDProgress";
 
 // Images
-import LogoAsana from "assets/images/small-logos/logo-asana.svg";
-import logoGithub from "assets/images/small-logos/github.svg";
-import logoAtlassian from "assets/images/small-logos/logo-atlassian.svg";
-import logoSlack from "assets/images/small-logos/logo-slack.svg";
-import logoSpotify from "assets/images/small-logos/logo-spotify.svg";
-import logoInvesion from "assets/images/small-logos/logo-invision.svg";
+import team2 from "assets/images/team-2.jpg";
 
-export default function data() {
-  const Project = ({ image, name }) => (
-    <MDBox display="flex" alignItems="center" lineHeight={1}>
-      <MDAvatar src={image} name={name} size="sm" variant="rounded" />
-      <MDTypography display="block" variant="button" fontWeight="medium" ml={1} lineHeight={1}>
-        {name}
-      </MDTypography>
-    </MDBox>
-  );
-
-  const Progress = ({ color, value }) => (
-    <MDBox display="flex" alignItems="center">
-      <MDTypography variant="caption" color="text" fontWeight="medium">
-        {value}%
-      </MDTypography>
-      <MDBox ml={0.5} width="9rem">
-        <MDProgress variant="gradient" color={color} value={value} />
-      </MDBox>
-    </MDBox>
-  );
-
-  return {
+export default function useMaintenanceTableData(userId, handleVoirMaintenance) {
+  const [tableData, setTableData] = useState({
     columns: [
-      { Header: "project", accessor: "project", width: "30%", align: "left" },
-      { Header: "budget", accessor: "budget", align: "left" },
-      { Header: "status", accessor: "status", align: "center" },
-      { Header: "completion", accessor: "completion", align: "center" },
-      { Header: "action", accessor: "action", align: "center" },
+      { Header: "maintenance", accessor: "maintenance", width: "45%", align: "left" },
+      { Header: "unite", accessor: "unite", align: "center" },
+      { Header: "created", accessor: "created", align: "center" },
+      { Header: "details", accessor: "details", align: "center" },
     ],
+    rows: [],
+  });
 
-    rows: [
-      {
-        project: <Project image={LogoAsana} name="Asana" />,
-        budget: (
-          <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
-            $2,500
-          </MDTypography>
-        ),
-        status: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            working
-          </MDTypography>
-        ),
-        completion: <Progress color="info" value={60} />,
-        action: (
-          <MDTypography component="a" href="#" color="text">
-            <Icon>more_vert</Icon>
-          </MDTypography>
-        ),
-      },
-      {
-        project: <Project image={logoGithub} name="Github" />,
-        budget: (
-          <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
-            $5,000
-          </MDTypography>
-        ),
-        status: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            done
-          </MDTypography>
-        ),
-        completion: <Progress color="success" value={100} />,
-        action: (
-          <MDTypography component="a" href="#" color="text">
-            <Icon>more_vert</Icon>
-          </MDTypography>
-        ),
-      },
-      {
-        project: <Project image={logoAtlassian} name="Atlassian" />,
-        budget: (
-          <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
-            $3,400
-          </MDTypography>
-        ),
-        status: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            canceled
-          </MDTypography>
-        ),
-        completion: <Progress color="error" value={30} />,
-        action: (
-          <MDTypography component="a" href="#" color="text">
-            <Icon>more_vert</Icon>
-          </MDTypography>
-        ),
-      },
-      {
-        project: <Project image={logoSpotify} name="Spotify" />,
-        budget: (
-          <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
-            $14,000
-          </MDTypography>
-        ),
-        status: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            working
-          </MDTypography>
-        ),
-        completion: <Progress color="info" value={80} />,
-        action: (
-          <MDTypography component="a" href="#" color="text">
-            <Icon>more_vert</Icon>
-          </MDTypography>
-        ),
-      },
-      {
-        project: <Project image={logoSlack} name="Slack" />,
-        budget: (
-          <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
-            $1,000
-          </MDTypography>
-        ),
-        status: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            canceled
-          </MDTypography>
-        ),
-        completion: <Progress color="error" value={0} />,
-        action: (
-          <MDTypography component="a" href="#" color="text">
-            <Icon>more_vert</Icon>
-          </MDTypography>
-        ),
-      },
-      {
-        project: <Project image={logoInvesion} name="Invesion" />,
-        budget: (
-          <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
-            $2,300
-          </MDTypography>
-        ),
-        status: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            done
-          </MDTypography>
-        ),
-        completion: <Progress color="success" value={100} />,
-        action: (
-          <MDTypography component="a" href="#" color="text">
-            <Icon>more_vert</Icon>
-          </MDTypography>
-        ),
-      },
-    ],
-  };
+  useEffect(() => {
+    const fetchMaintenances = async () => {
+      try {
+        const token = localStorage.getItem("access");
+        const response = await axios.get("http://localhost:8000/api/maintenance/list-for-user/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const maintenances = response.data;
+        const rows = maintenances.map((maintenance) => ({
+          maintenance: (
+            <MDBox display="flex" alignItems="center" lineHeight={1}>
+              <MDAvatar name={maintenance.idMaintenance} size="sm" />
+              <MDBox ml={2} lineHeight={1}>
+                <MDTypography display="block" variant="button" fontWeight="medium">
+                  Identifiant : {maintenance.idMaintenance}
+                </MDTypography>
+                <MDTypography variant="caption">{maintenance.diagnostique}</MDTypography>
+              </MDBox>
+            </MDBox>
+          ),
+          unite: (
+            <MDTypography variant="caption" color="text" fontWeight="medium">
+              {maintenance.unite}
+            </MDTypography>
+          ),
+          created: (
+            <MDTypography variant="caption" color="text" fontWeight="medium">
+              {new Date(maintenance.datecréation).toLocaleDateString()}
+            </MDTypography>
+          ),
+          details: (
+            <MDTypography
+              component="button"
+              type="button"
+              variant="caption"
+              color="text"
+              fontWeight="medium"
+              style={{ background: "none", border: "none", cursor: "pointer" }}
+              onClick={() => handleVoirMaintenance(maintenance.idMaintenance)}
+            >
+              Voir
+            </MDTypography>
+          ),
+        }));
+
+        setTableData((prev) => ({
+          ...prev,
+          rows,
+        }));
+      } catch (error) {
+        console.error("Erreur lors de la récupération des maintenances :", error);
+        if (isMounted) {
+          setTableData((prev) => ({
+            ...prev,
+            rows: [],
+          }));
+        }
+      }
+    };
+
+    fetchMaintenances();
+  }, [userId]);
+
+  return tableData;
 }

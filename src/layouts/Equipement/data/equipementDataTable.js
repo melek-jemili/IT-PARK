@@ -13,13 +13,30 @@ import team2 from "assets/images/team-2.jpg";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+// Fonction utilitaire pour colorer le champ état
+const coloredEtatChip = (etat) => {
+  let color = "default";
+  const formatted = etat.toLowerCase();
+
+  if (formatted === "fonctionnel") color = "success";
+  else if (formatted === "hors-service") color = "error";
+  else if (formatted === "en panne") color = "warning";
+
+  return <MDBadge badgeContent={etat} color={color} variant="gradient" size="sm" />;
+};
+
 export default function useEquipementTableData(userId, handleVoir) {
   const [tableData, setTableData] = useState({
     columns: [
       { Header: "Équipement", accessor: "equipement", width: "45%", align: "left" },
       { Header: "Unité", accessor: "unite", align: "center" },
       { Header: "Date de mise en service", accessor: "dateMiseEnService", align: "center" },
-      { Header: "État", accessor: "etat", align: "center" },
+      {
+        Header: "État",
+        accessor: "etat",
+        align: "center",
+        Cell: ({ value }) => coloredEtatChip(value),
+      },
       { Header: "Détails", accessor: "details", align: "center" },
     ],
     rows: [],
@@ -39,7 +56,7 @@ export default function useEquipementTableData(userId, handleVoir) {
         const rows = equipements.map((equipement) => ({
           equipement: (
             <MDBox display="flex" alignItems="center" lineHeight={1}>
-              <MDAvatar src={team2} name={equipement.nom} size="sm" />
+              <MDAvatar name={equipement.nom} size="sm" />
               <MDBox ml={2} lineHeight={1}>
                 <MDTypography display="block" variant="button" fontWeight="medium">
                   {equipement.nom} (Code: {equipement.codeABarre})
@@ -58,20 +75,7 @@ export default function useEquipementTableData(userId, handleVoir) {
               {new Date(equipement.dateMiseEnService).toLocaleDateString()}
             </MDTypography>
           ),
-          etat: (
-            <MDBadge
-              badgeContent={equipement.etat}
-              color={
-                equipement.etat.toLowerCase() === "fonctionnel"
-                  ? "success"
-                  : equipement.etat.toLowerCase() === "hors service"
-                  ? "error"
-                  : "warning"
-              }
-              variant="gradient"
-              size="sm"
-            />
-          ),
+          etat: coloredEtatChip(equipement.etat),
           details: (
             <MDTypography
               component="button"
@@ -85,6 +89,19 @@ export default function useEquipementTableData(userId, handleVoir) {
               Voir
             </MDTypography>
           ),
+
+          // Données brutes utiles pour modification
+          codeABarre: equipement.codeABarre,
+          nom: equipement.nom,
+          numeroSerie: equipement.numeroSerie,
+          modele: equipement.modele,
+          marque: equipement.marque,
+          type: equipement.type,
+          etat: equipement.etat,
+          dateMiseEnService: equipement.dateMiseEnService,
+          adresseIP: equipement.adresseIP,
+          adresseMAC: equipement.adresseMAC,
+          uniteId: equipement.unite,
         }));
 
         setTableData((prev) => ({

@@ -19,6 +19,7 @@ import MDAvatar from "components/MDAvatar";
 import breakpoints from "assets/theme/base/breakpoints";
 
 // Images par défaut
+import badge from "assets/images/la-poste-tunisienne-logo-png_seeklogo-359957.ico";
 import burceMars from "assets/images/bruce-mars.jpg";
 import backgroundImage from "assets/images/bg-profile.jpeg";
 
@@ -88,7 +89,7 @@ function Header({ children }) {
       <Card sx={{ position: "relative", mt: -8, mx: 3, py: 2, px: 2 }}>
         <Grid container spacing={3} alignItems="center">
           <Grid item>
-            <MDAvatar src={avatar} alt="profile-image" size="xl" shadow="sm" />
+            <MDAvatar src={badge} alt="profile-image" size="xl" shadow="sm" />
           </Grid>
           <Grid item>
             <MDBox height="100%" mt={0.5} lineHeight={1}>

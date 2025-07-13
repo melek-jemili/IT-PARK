@@ -38,12 +38,16 @@ Coded by www.creative-tim.com
 // Material Dashboard 2 React layouts
 import Dashboard from "layouts/dashboard";
 import Tables from "layouts/tables";
+import Billing from "layouts/billing";
+import RTL from "layouts/rtl";
+import Notifications from "layouts/notifications";
 import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 import EditProfile from "layouts/profile/components/edit-profile";
 import Maintenance from "layouts/maintenance";
 import Equipement from "layouts/Equipement";
+import ChangePassword from "layouts/profile/components/change-password";
 import Unite from "layouts/Unite";
 
 // @mui icons
@@ -119,12 +123,20 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Unité",
+    name: "Unite",
     key: "unite",
     icon: <Icon fontSize="small">domain</Icon>,
     route: "/unite",
     component: <Unite />,
     adminOnly: true,
+  },
+  {
+    type: "collapse",
+    name: "Change Password",
+    key: "change-password",
+    icon: <Icon fontSize="small">lock</Icon>,
+    route: "/profile/change-password",
+    component: <ChangePassword />,
   },
 ];
 export default routes;

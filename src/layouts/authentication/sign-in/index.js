@@ -1,35 +1,24 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-=========================================================
-*/
-
-// React + Router + Axios
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode"; // ✅ Import correct
 
-// @mui material components
+// MUI
 import Card from "@mui/material/Card";
 import Switch from "@mui/material/Switch";
 
-// Material Dashboard 2 React components
+// Material Dashboard
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDInput from "components/MDInput";
 import MDButton from "components/MDButton";
 
-// Authentication layout components
+// Layout
 import BasicLayout from "layouts/authentication/components/BasicLayout";
 
-// Images
+// Image
 import bgImage from "assets/images/bg-sign-in-basic.jpeg";
+import logo from "assets/images/la-poste-tunisienne-logo-png_seeklogo-359957.ico";
 
 function Basic() {
   const navigate = useNavigate();
@@ -47,15 +36,19 @@ function Basic() {
         username,
         password,
       });
+
       const { access, refresh } = response.data;
 
-      // Enregistrer les tokens (localStorage ou sessionStorage)
       localStorage.setItem("access", access);
       localStorage.setItem("refresh", refresh);
 
-      // Redirection après connexion
+      const decoded = jwtDecode(access);
+      console.log("Token décodé :", decoded);
+      localStorage.setItem("isAdminUser", decoded.isAdminUser ? "true" : "false");
+
       navigate("/dashboard");
     } catch (err) {
+      console.error(err);
       setError("Échec de la connexion. Vérifiez vos identifiants.");
     }
   };
@@ -74,6 +67,7 @@ function Basic() {
           mb={1}
           textAlign="center"
         >
+          <img src={logo} alt="logo" style={{ width: 50, height: 50 }} />
           <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
             La Poste Tunisienne
           </MDTypography>
@@ -95,7 +89,7 @@ function Basic() {
             <MDBox mb={2}>
               <MDInput
                 type="password"
-                label="mot de passe"
+                label="Mot de passe"
                 fullWidth
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

@@ -8,7 +8,7 @@
 
 Coded by www.creative-tim.com
 
- =========================================================
+=========================================================
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
@@ -36,11 +36,12 @@ import DefaultNavbarMobile from "examples/Navbars/DefaultNavbar/DefaultNavbarMob
 
 // Material Dashboard 2 React base styles
 import breakpoints from "assets/theme/base/breakpoints";
+import brandWhite from "assets/images/la-poste-tunisienne-logo-png_seeklogo-359957.ico";
 
 // Material Dashboard 2 React context
 import { useMaterialUIController } from "context";
 
-function DefaultNavbar({ transparent, light, action }) {
+function DefaultNavbar({ transparent, light }) {
   const [controller] = useMaterialUIController();
   const { darkMode } = controller;
 
@@ -51,7 +52,6 @@ function DefaultNavbar({ transparent, light, action }) {
   const closeMobileNavbar = () => setMobileNavbar(false);
 
   useEffect(() => {
-    // A function that sets the display state for the DefaultNavbarMobile.
     function displayMobileNavbar() {
       if (window.innerWidth < breakpoints.values.lg) {
         setMobileView(true);
@@ -62,16 +62,8 @@ function DefaultNavbar({ transparent, light, action }) {
       }
     }
 
-    /** 
-     The event listener that's calling the displayMobileNavbar function when 
-     resizing the window.
-    */
     window.addEventListener("resize", displayMobileNavbar);
-
-    // Call the displayMobileNavbar function to set the state with the initial value.
     displayMobileNavbar();
-
-    // Remove event listener on cleanup
     return () => window.removeEventListener("resize", displayMobileNavbar);
   }, []);
 
@@ -108,12 +100,25 @@ function DefaultNavbar({ transparent, light, action }) {
           py={transparent ? 1.5 : 0.75}
           lineHeight={1}
           pl={{ xs: 0, lg: 1 }}
+          display="flex"
+          alignItems="center"
+          gap={1}
         >
+          <img src={brandWhite} alt="logo" style={{ width: 24, height: 24 }} />
           <MDTypography variant="button" fontWeight="bold" color={light ? "white" : "dark"}>
-            Material Dashboard 2
+            La Poste Tunisienne
           </MDTypography>
         </MDBox>
-        <MDBox color="inherit" display={{ xs: "none", lg: "flex" }} m={0} p={0}>
+
+        {/* Liens centrés */}
+        <MDBox
+          color="inherit"
+          display={{ xs: "none", lg: "flex" }}
+          m={0}
+          p={0}
+          flex={1}
+          justifyContent="center"
+        >
           <DefaultNavbarLink icon="donut_large" name="dashboard" route="/dashboard" light={light} />
           <DefaultNavbarLink icon="person" name="profile" route="/profile" light={light} />
           <DefaultNavbarLink
@@ -129,35 +134,8 @@ function DefaultNavbar({ transparent, light, action }) {
             light={light}
           />
         </MDBox>
-        {action &&
-          (action.type === "internal" ? (
-            <MDBox display={{ xs: "none", lg: "inline-block" }}>
-              <MDButton
-                component={Link}
-                to={action.route}
-                variant="gradient"
-                color={action.color ? action.color : "info"}
-                size="small"
-              >
-                {action.label}
-              </MDButton>
-            </MDBox>
-          ) : (
-            <MDBox display={{ xs: "none", lg: "inline-block" }}>
-              <MDButton
-                component="a"
-                href={action.route}
-                target="_blank"
-                rel="noreferrer"
-                variant="gradient"
-                color={action.color ? action.color : "info"}
-                size="small"
-                sx={{ mt: -0.3 }}
-              >
-                {action.label}
-              </MDButton>
-            </MDBox>
-          ))}
+
+        {/* Menu responsive pour mobile */}
         <MDBox
           display={{ xs: "inline-block", lg: "none" }}
           lineHeight={0}
@@ -170,40 +148,22 @@ function DefaultNavbar({ transparent, light, action }) {
           <Icon fontSize="default">{mobileNavbar ? "close" : "menu"}</Icon>
         </MDBox>
       </MDBox>
+
       {mobileView && <DefaultNavbarMobile open={mobileNavbar} close={closeMobileNavbar} />}
     </Container>
   );
 }
 
-// Setting default values for the props of DefaultNavbar
+// Default props
 DefaultNavbar.defaultProps = {
   transparent: false,
   light: false,
-  action: false,
 };
 
-// Typechecking props for the DefaultNavbar
+// PropTypes
 DefaultNavbar.propTypes = {
   transparent: PropTypes.bool,
   light: PropTypes.bool,
-  action: PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.shape({
-      type: PropTypes.oneOf(["external", "internal"]).isRequired,
-      route: PropTypes.string.isRequired,
-      color: PropTypes.oneOf([
-        "primary",
-        "secondary",
-        "info",
-        "success",
-        "warning",
-        "error",
-        "dark",
-        "light",
-      ]),
-      label: PropTypes.string.isRequired,
-    }),
-  ]),
 };
 
 export default DefaultNavbar;

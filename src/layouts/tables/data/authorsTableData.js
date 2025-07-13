@@ -38,7 +38,7 @@ export default function useTicketsTableData(userId, handleVoir) {
         const rows = tickets.map((ticket) => ({
           ticket: (
             <MDBox display="flex" alignItems="center" lineHeight={1}>
-              <MDAvatar src={team2} name={ticket.idTicket} size="sm" />
+              <MDAvatar name={ticket.idTicket} size="sm" />
               <MDBox ml={2} lineHeight={1}>
                 <MDTypography display="block" variant="button" fontWeight="medium">
                   Identifiant : {ticket.idTicket}
@@ -97,7 +97,7 @@ export default function useTicketsTableData(userId, handleVoir) {
     };
 
     fetchTickets();
-  }, [userId]); // handleVoir retiré pour éviter les appels infinis
+  }, [userId]);
 
   return tableData;
 }

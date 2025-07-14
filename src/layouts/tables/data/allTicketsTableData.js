@@ -9,6 +9,7 @@ import MDBadge from "components/MDBadge";
 
 // Images
 import team2 from "assets/images/team-2.jpg";
+import badge from "assets/images/la-poste-tunisienne-logo-png_seeklogo-359957.ico";
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
@@ -38,7 +39,7 @@ export default function useAllTicketsTableData(userId, handleVoir) {
         const rows = tickets.map((ticket) => ({
           ticket: (
             <MDBox display="flex" alignItems="center" lineHeight={1}>
-              <MDAvatar name={ticket.idTicket} size="sm" />
+              <MDAvatar src={badge} name={ticket.idTicket} size="sm" />
               <MDBox ml={2} lineHeight={1}>
                 <MDTypography display="block" variant="button" fontWeight="medium">
                   Identifiant : {ticket.idTicket}

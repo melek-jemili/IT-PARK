@@ -56,6 +56,13 @@ function EquipementsOverview() {
       .catch((err) => console.error("Erreur équipements par statut:", err));
   }, []);
 
+  // Fonction pour fusionner codePostal + nom en label
+  const mergeLabel = (data, codeField, nameField) =>
+    data.map((item) => ({
+      ...item,
+      label: `${item[codeField]} - ${item[nameField]}`,
+    }));
+
   // Génère un PieChart pour un dataset donné
   const renderPie = (data, nameKey, colorFn) => (
     <MDBox height={250}>
@@ -110,7 +117,11 @@ function EquipementsOverview() {
       <MDBox p={2}>
         <MDTypography variant="subtitle2">Par unité :</MDTypography>
         {byUnite.length > 0 ? (
-          renderPie(byUnite, "unite__codePostal", (_, i) => COLORS[i % COLORS.length])
+          renderPie(
+            mergeLabel(byUnite, "unite__codePostal", "unite__nom"),
+            "label",
+            (_, i) => COLORS[i % COLORS.length]
+          )
         ) : (
           <MDTypography variant="body2" color="text">
             Chargement des unités...

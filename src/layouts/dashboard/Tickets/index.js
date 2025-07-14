@@ -8,10 +8,10 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 // Couleurs fixes pour statut
 const STATUS_COLORS = {
-  ouvert: "#f44336", // rouge
-  en_cours: "#ffeb3b", // jaune
-  resolu: "#4caf50", // vert
-  autre: "#9e9e9e", // gris
+  ouvert: "#f44336",
+  encours: "#ffeb3b",
+  fermé: "#4caf50",
+  autre: "#9e9e9e",
 };
 
 const DEFAULT_COLORS = [
@@ -93,6 +93,20 @@ function TicketsOverview() {
     </MDBox>
   );
 
+  // Fonction pour fusionner 2 champs (code + nom)
+  const mergeLabel = (data, codeField, nameField) =>
+    data.map((item) => ({
+      ...item,
+      label: `${item[codeField]} - ${item[nameField]}`,
+    }));
+
+  // Fonction pour fusionner 3 champs (matricule + nom + prénom)
+  const mergeLabelFullName = (data, codeField, nomField, prenomField) =>
+    data.map((item) => ({
+      ...item,
+      label: `${item[codeField]} - ${item[nomField]} ${item[prenomField]}`,
+    }));
+
   return (
     <Card sx={{ height: "100%" }}>
       <MDBox pt={3} px={3}>
@@ -119,7 +133,7 @@ function TicketsOverview() {
         )}
       </MDBox>
 
-      {/* Statut */}
+      {/* Par statut */}
       <MDBox p={2}>
         <MDTypography variant="subtitle2">Par statut :</MDTypography>
         {renderPie(byStatus, "etat", (entry) => {
@@ -128,27 +142,27 @@ function TicketsOverview() {
         })}
       </MDBox>
 
-      {/* Unité */}
+      {/* Par unité */}
       <MDBox p={2}>
         <MDTypography variant="subtitle2">Par unité :</MDTypography>
         {renderPie(
-          byUnite,
-          "unite__codePostal",
+          mergeLabel(byUnite, "unite__codePostal", "unite__nom"),
+          "label",
           (_, i) => DEFAULT_COLORS[i % DEFAULT_COLORS.length]
         )}
       </MDBox>
 
-      {/* Équipement */}
+      {/* Par équipement */}
       <MDBox p={2}>
         <MDTypography variant="subtitle2">Par équipement :</MDTypography>
         {renderPie(
-          byEquipement,
-          "equipement__codeABarre",
+          mergeLabel(byEquipement, "equipement__codeABarre", "equipement__nom"),
+          "label",
           (_, i) => DEFAULT_COLORS[i % DEFAULT_COLORS.length]
         )}
       </MDBox>
 
-      {/* Priorité */}
+      {/* Par priorité */}
       <MDBox p={2}>
         <MDTypography variant="subtitle2">Par priorité :</MDTypography>
         {renderPie(byPriorite, "priorite", (entry) => {
@@ -157,12 +171,12 @@ function TicketsOverview() {
         })}
       </MDBox>
 
-      {/* Utilisateur */}
+      {/* Par utilisateur */}
       <MDBox p={2}>
         <MDTypography variant="subtitle2">Par utilisateur :</MDTypography>
         {renderPie(
-          byPersonne,
-          "personnel__matricule",
+          mergeLabelFullName(byPersonne, "matricule", "nom", "prenom"),
+          "label",
           (_, i) => DEFAULT_COLORS[i % DEFAULT_COLORS.length]
         )}
       </MDBox>

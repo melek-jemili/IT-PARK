@@ -20,6 +20,7 @@ import EquipementsOverview from "layouts/dashboard/Equipements";
 import MaintenancesOverview from "layouts/dashboard/Maintenances";
 import TicketPersoOverview from "layouts/dashboard/InfoPersonnelles/TicketsPersonnels";
 import MaintenancesPersoOverview from "layouts/dashboard/InfoPersonnelles/MaintenancesPersonnelles";
+import EquipementsUser from "layouts/dashboard/InfoPersonnelles/EquipementPerso";
 
 function Dashboard() {
   const isAdminUser = localStorage.getItem("isAdminUser") === "true";
@@ -59,6 +60,9 @@ function Dashboard() {
           </Grid>
           <Grid item xs={12} md={6}>
             <MaintenancesPersoOverview />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <EquipementsUser />
           </Grid>
         </Grid>
       </MDBox>

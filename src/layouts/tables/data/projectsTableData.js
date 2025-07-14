@@ -11,6 +11,7 @@ import MDAvatar from "components/MDAvatar";
 
 // Images
 import team2 from "assets/images/team-2.jpg";
+import badge from "assets/images/la-poste-tunisienne-logo-png_seeklogo-359957.ico";
 
 export default function useMaintenanceTableData(userId, handleVoirMaintenance) {
   const [tableData, setTableData] = useState({
@@ -37,7 +38,7 @@ export default function useMaintenanceTableData(userId, handleVoirMaintenance) {
         const rows = maintenances.map((maintenance) => ({
           maintenance: (
             <MDBox display="flex" alignItems="center" lineHeight={1}>
-              <MDAvatar name={maintenance.idMaintenance} size="sm" />
+              <MDAvatar src={badge} name={maintenance.idMaintenance} size="sm" />
               <MDBox ml={2} lineHeight={1}>
                 <MDTypography display="block" variant="button" fontWeight="medium">
                   Identifiant : {maintenance.idMaintenance}

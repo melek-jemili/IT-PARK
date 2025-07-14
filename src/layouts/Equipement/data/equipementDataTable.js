@@ -9,6 +9,7 @@ import MDBadge from "components/MDBadge";
 
 // Images
 import team2 from "assets/images/team-2.jpg";
+import badge from "assets/images/la-poste-tunisienne-logo-png_seeklogo-359957.ico";
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
@@ -56,7 +57,7 @@ export default function useEquipementTableData(userId, handleVoir) {
         const rows = equipements.map((equipement) => ({
           equipement: (
             <MDBox display="flex" alignItems="center" lineHeight={1}>
-              <MDAvatar name={equipement.nom} size="sm" />
+              <MDAvatar src={badge} name={equipement.nom} size="sm" />
               <MDBox ml={2} lineHeight={1}>
                 <MDTypography display="block" variant="button" fontWeight="medium">
                   {equipement.nom} (Code: {equipement.codeABarre})

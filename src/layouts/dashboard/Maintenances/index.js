@@ -21,6 +21,13 @@ const COLORS = [
   "#388E3C",
 ];
 
+// Fonction pour fusionner 2 champs en label : "code - nom"
+const mergeLabel = (data, codeField, nameField) =>
+  data.map((item) => ({
+    ...item,
+    label: `${item[codeField]} - ${item[nameField]}`,
+  }));
+
 function MaintenancesOverview() {
   const [total, setTotal] = useState(null);
   const [byUnite, setByUnite] = useState([]);
@@ -103,7 +110,7 @@ function MaintenancesOverview() {
           Par unité :
         </MDTypography>
         {byUnite.length > 0 ? (
-          renderPie(byUnite, "unite__codePostal")
+          renderPie(mergeLabel(byUnite, "unite__codePostal", "unite__nom"), "label")
         ) : (
           <MDTypography variant="body2" color="text">
             Chargement des unités...
@@ -116,7 +123,10 @@ function MaintenancesOverview() {
           Par équipement :
         </MDTypography>
         {byEquipement.length > 0 ? (
-          renderPie(byEquipement, "codeEquipement__codeABarre")
+          renderPie(
+            mergeLabel(byEquipement, "codeEquipement__nom", "codeEquipement__codeABarre"),
+            "label"
+          )
         ) : (
           <MDTypography variant="body2" color="text">
             Chargement des équipements...

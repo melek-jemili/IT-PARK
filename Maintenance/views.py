@@ -91,7 +91,7 @@ from django.db.models import Count
 def maintenance_par_equipement(request):
     data = (
         Maintenance.objects
-        .values("codeEquipement__codeABarre")
+        .values("codeEquipement__nom","codeEquipement__codeABarre")
         .annotate(total=Count("idMaintenance"))
         .order_by("-total")
     )
@@ -102,7 +102,7 @@ def maintenance_par_equipement(request):
 def maintenance_par_unite(request):
     data = (
         Maintenance.objects
-        .values("unite__codePostal")
+        .values("unite__codePostal","unite__nom")
         .annotate(total=Count("idMaintenance"))
         .order_by("-total")
     )

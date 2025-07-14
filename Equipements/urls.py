@@ -12,5 +12,6 @@ urlpatterns = [
     path('stats/', statistique_equipementsTotal, name='equipement_stats'),
     path('statsParUnite/', equipement_par_unite, name='equipement_stats_unite'),
     path('statsParStatut/', statistiques_equipement_par_statut, name='equipement_stats_statut'),
+    path('statsParUtilisateur/', equipement_par_utilisateur, name='equipement_stats_utilisateur'),
     
 ]

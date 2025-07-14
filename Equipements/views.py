@@ -23,12 +23,21 @@ class EquipementCreation(APIView):
 class UserEquipementListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    permission_classes = [permissions.IsAuthenticated]
+
     def get(self, request):
-        unit_id = request.GET.get('unit_id')
-        if unit_id:
-            equipements = Equipement.objects.filter(unite_id=unit_id)
-        else:
-            equipements = Equipement.objects.all()
+        # Récupérer l'unité liée à l'utilisateur (en supposant que c'est dans request.user.profile.unite)
+        # Adapté selon ta structure User/Profile/Unité
+        user_profile = getattr(request.user, 'profile', None)
+        if not user_profile:
+            return Response({"detail": "Profil utilisateur introuvable."}, status=status.HTTP_400_BAD_REQUEST)
+
+        unit = getattr(user_profile, 'unite', None)
+        if not unit:
+            return Response({"detail": "Unité utilisateur introuvable."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Filtrer équipements par unité de l'utilisateur
+        equipements = Equipement.objects.filter(unite=unit)
         serializer = EquipementSerializer(equipements, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
@@ -93,6 +102,7 @@ class EquipementDeleteView(APIView):
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
@@ -120,7 +130,20 @@ def statistiques_equipement_par_statut(request):
 def equipement_par_unite(request):
     data = (
         Equipement.objects
-        .values("unite__codePostal")
+        .values("unite__nom","unite__codePostal")
+        .annotate(total=Count("codeABarre"))
+        .order_by("-total")
+    )
+    return Response(data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def equipement_par_utilisateur(request):
+    data = (
+        Equipement.objects
+        .filter(unite__personnel=request.user.profile)
+        .values("unite__personnel__matricule")
         .annotate(total=Count("codeABarre"))
         .order_by("-total")
     )

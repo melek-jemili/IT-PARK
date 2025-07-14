@@ -104,7 +104,7 @@ def statistique_ticketsTotal(request):
     return Response({'Tickets_Totales': total})
 
 
-from django.db.models import Count
+from django.db.models import Count,F
 
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
@@ -123,7 +123,7 @@ def statistiques_tickets_par_statut(request):
 def tickets_par_equipement(request):
     data = (
         Ticket.objects
-        .values("equipement__codeABarre")
+        .values("equipement__codeABarre","equipement__nom")
         .annotate(total=Count("idTicket"))
         .order_by("-total")
     )
@@ -134,7 +134,7 @@ def tickets_par_equipement(request):
 def tickets_par_unite(request):
     data = (
         Ticket.objects
-        .values("unite__codePostal")
+        .values("unite__codePostal","unite__nom")
         .annotate(total=Count("idTicket"))
         .order_by("-total")
     )
@@ -157,7 +157,11 @@ from rest_framework.permissions import IsAuthenticated
 def stats_tickets_utilisateur(request):
     data = (
         Ticket.objects
-        .values("personnel__matricule")
+        .values(
+            matricule=F("personnel__matricule"),
+            nom=F("personnel__nom"),
+            prenom=F("personnel__prenom")
+        )
         .annotate(total=Count("idTicket"))
         .order_by("-total")
     )

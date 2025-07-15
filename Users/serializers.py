@@ -27,3 +27,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['username'] = user.username
         token['isAdminUser'] = user.is_staff 
         return token
+
+def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep["unite"] = instance.unite.codePostal if instance.unite else None
+        return rep

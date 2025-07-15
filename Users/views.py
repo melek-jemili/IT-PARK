@@ -104,8 +104,8 @@ class UserListSerializer(ModelSerializer):
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def list_users(request):
-    users = User.objects.all()
-    serializer = UserListSerializer(users, many=True)
+    profiles = Profile.objects.all()
+    serializer = UserSerializer(profiles, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['PUT'])

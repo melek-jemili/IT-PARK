@@ -2,7 +2,7 @@ from django.db import models
 
 class Unite(models.Model):
     codePostal = models.IntegerField(primary_key=True, unique=True)
-    nom = models.CharField(max_length=100, unique=True)
+    nom = models.CharField(max_length=100)
     classe = models.CharField(max_length=50)
     gouvernorat = models.CharField(max_length=100)
     adresse = models.CharField(max_length=200)

@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from "react";
 import MDTypography from "components/MDTypography";
+import Button from "@mui/material/Button";
 import axios from "axios";
 
-export default function useProfileTableData(handleVoir) {
+export default function useProfileTableData(onChangePasswordClick) {
   const [tableData, setTableData] = useState({
     columns: [
-      { Header: "Matricule", accessor: "matricule", width: "15%", align: "left" },
-      { Header: "Nom", accessor: "nom", width: "25%", align: "left" },
-      { Header: "Prenom", accessor: "prenom", width: "25%", align: "left" },
-      { Header: "CIN", accessor: "cin", width: "15%", align: "left" },
-      { Header: "Email", accessor: "email", width: "20%", align: "left" },
-      { Header: "Téléphone", accessor: "telephone", width: "15%", align: "left" },
-      { Header: "Unité", accessor: "unite", width: "15%", align: "center" },
-      { Header: "Détails", accessor: "details", align: "center" },
+      { Header: "Matricule", accessor: "matricule", width: "10%", align: "left" },
+      { Header: "Nom", accessor: "nom", width: "10%", align: "left" },
+      { Header: "Prenom", accessor: "prenom", width: "10%", align: "left" },
+      { Header: "CIN", accessor: "cin", width: "10%", align: "left" },
+      { Header: "Email", accessor: "email", width: "15%", align: "left" },
+      { Header: "Téléphone", accessor: "telephone", width: "10%", align: "left" },
+      { Header: "Unité", accessor: "unite", width: "10%", align: "left" },
+      { Header: "Fonction", accessor: "fonction", width: "10%", align: "left" },
+      { Header: "Naissance", accessor: "dateNaissance", width: "10%", align: "left" },
+      { Header: "Région", accessor: "region", width: "10%", align: "left" },
+      { Header: "Mot de passe", accessor: "actions", align: "center" }, // 🔑 nouvelle colonne
     ],
     rows: [],
   });
@@ -34,17 +38,17 @@ export default function useProfileTableData(handleVoir) {
             </MDTypography>
           ),
           nom: (
-            <MDTypography display="block" variant="button" fontWeight="medium">
+            <MDTypography variant="button" fontWeight="medium">
               {profile.nom}
             </MDTypography>
           ),
           prenom: (
-            <MDTypography display="block" variant="button" fontWeight="medium">
+            <MDTypography variant="button" fontWeight="medium">
               {profile.prenom}
             </MDTypography>
           ),
           cin: (
-            <MDTypography display="block" variant="button" fontWeight="medium">
+            <MDTypography variant="button" fontWeight="medium">
               {profile.cin}
             </MDTypography>
           ),
@@ -63,32 +67,35 @@ export default function useProfileTableData(handleVoir) {
               {profile.unite ?? "N/A"}
             </MDTypography>
           ),
-          details: (
-            <MDTypography
-              component="button"
-              type="button"
-              variant="caption"
-              color="text"
-              fontWeight="medium"
-              style={{ background: "none", border: "none", cursor: "pointer" }}
-              onClick={() => typeof handleVoir === "function" && handleVoir(profile.matricule)}
-            >
-              Voir
+          fonction: (
+            <MDTypography variant="caption" color="text" fontWeight="medium">
+              {profile.fonction ?? "N/A"}
             </MDTypography>
           ),
-
-          // Données brutes si besoin
-          matriculeRaw: profile.matricule,
-          nom: profile.nom,
-          prenom: profile.prenom,
-          cin: profile.cin,
-          fonction: profile.fonction,
-          dateNaissance: profile.dateNaissance,
-          region: profile.region,
-          emailRaw: profile.email,
-          telephoneRaw: profile.telephone,
-          uniteRaw: profile.unite,
-          userId: profile.matricule,
+          dateNaissance: (
+            <MDTypography variant="caption" color="text" fontWeight="medium">
+              {profile.dateNaissance ?? "N/A"}
+            </MDTypography>
+          ),
+          region: (
+            <MDTypography variant="caption" color="text" fontWeight="medium">
+              {profile.region ?? "N/A"}
+            </MDTypography>
+          ),
+          actions: (
+            <Button
+              variant="outlined"
+              sx={{
+                color: "#1a73e8",
+                borderColor: "#1a73e8",
+                textTransform: "none",
+                fontWeight: "bold",
+              }}
+              onClick={() => onChangePasswordClick(profile)}
+            >
+              Changer mot de passe
+            </Button>
+          ),
         }));
 
         setTableData((prev) => ({
@@ -105,7 +112,7 @@ export default function useProfileTableData(handleVoir) {
     };
 
     fetchProfiles();
-  }, []); // <-- ici : on ne met plus userId pour éviter boucle infinie
+  }, [onChangePasswordClick]);
 
   return tableData;
 }

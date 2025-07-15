@@ -18,6 +18,7 @@ export default function useAllTicketsTableData(userId, handleVoir) {
   const [tableData, setTableData] = useState({
     columns: [
       { Header: "ticket", accessor: "ticket", width: "45%", align: "left" },
+      { Header: "Unite", accessor: "unite", align: "center" },
       { Header: "status", accessor: "status", align: "center" },
       { Header: "created", accessor: "created", align: "center" },
       { Header: "details", accessor: "details", align: "center" },
@@ -47,6 +48,11 @@ export default function useAllTicketsTableData(userId, handleVoir) {
                 <MDTypography variant="caption">{ticket.description}</MDTypography>
               </MDBox>
             </MDBox>
+          ),
+          unite: (
+            <MDTypography variant="caption" color="text" fontWeight="medium">
+              {ticket.unite}
+            </MDTypography>
           ),
           status: (
             <MDBox ml={-1}>

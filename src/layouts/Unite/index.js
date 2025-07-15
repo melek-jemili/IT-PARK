@@ -9,18 +9,23 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import PropTypes from "prop-types";
 
+// Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 
+// Dashboard Layout
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 
+// Libs
 import React, { useState } from "react";
-import useUniteTableData from "./data/uniteDataTable";
 import axios from "axios";
+
+// Data hook
+import useUniteTableData from "./data/uniteDataTable";
 
 function EditButtonCell({ row, openEditModal }) {
   return (
@@ -36,9 +41,7 @@ function EditButtonCell({ row, openEditModal }) {
 }
 
 EditButtonCell.propTypes = {
-  row: PropTypes.shape({
-    original: PropTypes.object.isRequired,
-  }).isRequired,
+  row: PropTypes.shape({ original: PropTypes.object.isRequired }).isRequired,
   openEditModal: PropTypes.func.isRequired,
 };
 
@@ -50,6 +53,10 @@ function Tables() {
   const [uniteDetails, setUniteDetails] = useState(null);
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [addLoading, setAddLoading] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
+  const [addError, setAddError] = useState("");
+  const [editError, setEditError] = useState("");
 
   const [addForm, setAddForm] = useState({
     codePostal: "",
@@ -68,10 +75,6 @@ function Tables() {
   });
 
   const [editForm, setEditForm] = useState({ ...addForm });
-  const [editLoading, setEditLoading] = useState(false);
-  const [editError, setEditError] = useState("");
-  const [addLoading, setAddLoading] = useState(false);
-  const [addError, setAddError] = useState("");
 
   const handleVoir = async (id) => {
     try {
@@ -120,13 +123,50 @@ function Tables() {
     setEditOpen(true);
   };
 
+  const handleAddSubmit = async (e) => {
+    e.preventDefault();
+    setAddLoading(true);
+    setAddError("");
+    try {
+      const token = localStorage.getItem("access");
+      const payload = {
+        codePostal: parseInt(addForm.codePostal, 10),
+        nom: addForm.nom,
+        classe: addForm.classe,
+        gouvernorat: addForm.gouvernorat,
+        adresse: addForm.adresse,
+        nombreEmployes: parseInt(addForm.nombreEmployes, 10),
+        nombreGuichets: parseInt(addForm.nombreGuichets, 10),
+        chefUnité: addForm.chefUnité,
+        plageIP: addForm.plageIP,
+        typeLiason1: addForm.typeLiason1,
+        typeLiason2: addForm.typeLiason2,
+        idLiaison1: parseInt(addForm.idLiaison1, 10),
+        idLiaison2: parseInt(addForm.idLiaison2, 10),
+      };
+
+      console.log("Payload envoyé :", payload); // Debug
+
+      await axios.post("http://localhost:8000/api/unite/add/", payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAddOpen(false);
+      window.location.reload();
+    } catch (err) {
+      setAddError("Erreur lors de l'ajout de l'unité.");
+      console.error("Payload envoyé :", addForm);
+      console.error("Erreur backend :", err.response?.data || err.message);
+    } finally {
+      setAddLoading(false);
+    }
+  };
+
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     setEditLoading(true);
     setEditError("");
     try {
       const token = localStorage.getItem("access");
-
       const payload = {
         codePostal: parseInt(editForm.codePostal, 10),
         nom: editForm.nom,
@@ -150,45 +190,10 @@ function Tables() {
       window.location.reload();
     } catch (err) {
       setEditError("Erreur lors de la modification de l'unité.");
-      console.error(err.response?.data || err.message);
+      console.error("Payload envoyé :", editForm);
+      console.error("Erreur backend :", err.response?.data || err.message);
     } finally {
       setEditLoading(false);
-    }
-  };
-
-  const handleAddSubmit = async (e) => {
-    e.preventDefault();
-    setAddLoading(true);
-    setAddError("");
-    try {
-      const token = localStorage.getItem("access");
-
-      const payload = {
-        codePostal: parseInt(addForm.codePostal, 10),
-        nom: addForm.nom,
-        classe: addForm.classe,
-        gouvernorat: addForm.gouvernorat,
-        adresse: addForm.adresse,
-        nombreEmployes: parseInt(addForm.nombreEmployes, 10),
-        nombreGuichets: parseInt(addForm.nombreGuichets, 10),
-        chefUnité: addForm.chefUnité,
-        plageIP: addForm.plageIP,
-        typeLiason1: addForm.typeLiason1,
-        typeLiason2: addForm.typeLiason2,
-        idLiaison1: parseInt(addForm.idLiaison1, 10),
-        idLiaison2: parseInt(addForm.idLiaison2, 10),
-      };
-
-      await axios.post("http://localhost:8000/api/unite/add/", payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setAddOpen(false);
-      window.location.reload();
-    } catch (err) {
-      setAddError("Erreur lors de l'ajout de l'unité.");
-      console.error(err.response?.data || err.message);
-    } finally {
-      setAddLoading(false);
     }
   };
 
@@ -200,10 +205,10 @@ function Tables() {
     { label: "Adresse", key: "adresse" },
     { label: "Nombre Employes", key: "nombreEmployes", type: "number" },
     { label: "Nombre Guichets", key: "nombreGuichets", type: "number" },
-    { label: "Chef Unité", key: "chefUnite" },
+    { label: "Chef Unité", key: "chefUnité" },
     { label: "Plage IP", key: "plageIP" },
-    { label: "Type Liaison 1", key: "typeLiaison1" },
-    { label: "Type Liaison 2", key: "typeLiaison2" },
+    { label: "Type Liaison 1", key: "typeLiason1" },
+    { label: "Type Liaison 2", key: "typeLiason2" },
     { label: "ID Liaison 1", key: "idLiaison1", type: "number" },
     { label: "ID Liaison 2", key: "idLiaison2", type: "number" },
   ];
@@ -281,7 +286,6 @@ function Tables() {
                 borderRadius="lg"
                 coloredShadow="info"
                 display="flex"
-                alignItems="center"
                 justifyContent="space-between"
               >
                 <MDTypography variant="h6" color="white">
@@ -325,7 +329,7 @@ function Tables() {
                   </MDBox>
                 </Modal>
 
-                {/* Modal Ajout */}
+                {/* Modal Ajouter */}
                 <Modal open={addOpen} onClose={() => setAddOpen(false)}>
                   <MDBox
                     sx={{
@@ -380,7 +384,7 @@ function Tables() {
                     }}
                   >
                     <MDTypography variant="h6" mb={2}>
-                      Modifier
+                      Modifier l’unité
                     </MDTypography>
                     <form onSubmit={handleEditSubmit}>
                       {renderFormFields(editForm, setEditForm)}

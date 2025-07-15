@@ -49,6 +49,7 @@ import Maintenance from "layouts/maintenance";
 import Equipement from "layouts/Equipement";
 import ChangePassword from "layouts/profile/components/change-password";
 import Unite from "layouts/Unite";
+import ListUsersAdmin from "layouts/ListUsersAdmin";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
@@ -137,6 +138,14 @@ const routes = [
     icon: <Icon fontSize="small">lock</Icon>,
     route: "/profile/change-password",
     component: <ChangePassword />,
+  },
+  {
+    type: "collapse",
+    name: "Liste Des Utilisateurs",
+    key: "ListUsersAdmin",
+    icon: <Icon fontSize="small">list</Icon>,
+    route: "/ListUsersAdmin",
+    component: <ListUsersAdmin />,
   },
 ];
 export default routes;

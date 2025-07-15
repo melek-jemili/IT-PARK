@@ -108,6 +108,59 @@ def list_users(request):
     serializer = UserSerializer(profiles, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def admin_change_user_password(request):
+    matricule = request.data.get('matricule')
+    new_password = request.data.get('new_password')
+
+    if not matricule or not new_password:
+        return Response(
+            {"error": "Le matricule et le nouveau mot de passe sont requis."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    try:
+        profile = Profile.objects.get(matricule=matricule)
+    except Profile.DoesNotExist:
+        return Response(
+            {"error": "Profil utilisateur non trouvé avec cette matricule."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    user = profile.user  # suppose que Profile a un champ OneToOne vers User nommé "user"
+    
+    if not user:
+        return Response(
+            {"error": "Utilisateur lié au profil non trouvé."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    user.set_password(new_password)
+    user.save()
+
+    return Response(
+        {"message": f"Mot de passe modifié avec succès pour l'utilisateur  avec la matricule :{matricule}."},
+        status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def search(request):
+    query = request.query_params.get('q', '')
+    if not query:
+        return Response({"error": "Aucun terme de recherche fourni."}, status=status.HTTP_400_BAD_REQUEST)
+
+    profiles = Profile.objects.filter(matricule__icontains=query)
+
+    if not profiles.exists():
+        return Response([], status=status.HTTP_200_OK)
+
+    users = [profile.matricule for profile in profiles] 
+    serializer = UserListSerializer(users, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def change_password(request):

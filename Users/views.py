@@ -130,7 +130,7 @@ def admin_change_user_password(request):
             status=status.HTTP_404_NOT_FOUND
         )
     
-    user = profile.user  # suppose que Profile a un champ OneToOne vers User nommé "user"
+    user = profile.id
     
     if not user:
         return Response(

@@ -3,7 +3,7 @@ import MDTypography from "components/MDTypography";
 import Button from "@mui/material/Button";
 import axios from "axios";
 
-export default function useProfileTableData(onChangePasswordClick) {
+export default function useProfileTableData(userId, handleChangePasswordClick) {
   const [tableData, setTableData] = useState({
     columns: [
       { Header: "Matricule", accessor: "matricule", width: "10%", align: "left" },
@@ -16,7 +16,7 @@ export default function useProfileTableData(onChangePasswordClick) {
       { Header: "Fonction", accessor: "fonction", width: "10%", align: "left" },
       { Header: "Naissance", accessor: "dateNaissance", width: "10%", align: "left" },
       { Header: "Région", accessor: "region", width: "10%", align: "left" },
-      { Header: "Mot de passe", accessor: "actions", align: "center" }, // 🔑 nouvelle colonne
+      { Header: "Mot de passe", accessor: "actions", align: "center" },
     ],
     rows: [],
   });
@@ -91,7 +91,7 @@ export default function useProfileTableData(onChangePasswordClick) {
                 textTransform: "none",
                 fontWeight: "bold",
               }}
-              onClick={() => onChangePasswordClick(profile)}
+              onClick={() => handleChangePasswordClick(profile.matricule)}
             >
               Changer mot de passe
             </Button>
@@ -112,7 +112,7 @@ export default function useProfileTableData(onChangePasswordClick) {
     };
 
     fetchProfiles();
-  }, [onChangePasswordClick]);
+  }, [userId]);
 
   return tableData;
 }

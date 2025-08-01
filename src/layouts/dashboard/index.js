@@ -13,6 +13,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
 // Dashboard components
+import BotpressChat from "layouts/dashboard/BotpressChat/BotpressChat";
 import UsersOverview from "layouts/dashboard/utilisateurs";
 import UnitsOverview from "layouts/dashboard/Unite";
 import TicketsOverview from "layouts/dashboard/Tickets";
@@ -66,7 +67,7 @@ function Dashboard() {
           </Grid>
         </Grid>
       </MDBox>
-
+      <BotpressChat />
       <Footer />
     </DashboardLayout>
   );

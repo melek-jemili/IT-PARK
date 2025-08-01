@@ -146,6 +146,7 @@ const routes = [
     icon: <Icon fontSize="small">list</Icon>,
     route: "/ListUsersAdmin",
     component: <ListUsersAdmin />,
+    adminOnly: true,
   },
 ];
 export default routes;

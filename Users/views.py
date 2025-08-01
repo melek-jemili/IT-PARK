@@ -145,6 +145,8 @@ def admin_change_user_password(request):
         {"message": f"Mot de passe modifié avec succès pour l'utilisateur  avec la matricule :{matricule}."},
         status=status.HTTP_200_OK)
 
+from .serializers import ProfileSerializer 
+
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def search(request):
@@ -153,14 +155,8 @@ def search(request):
         return Response({"error": "Aucun terme de recherche fourni."}, status=status.HTTP_400_BAD_REQUEST)
 
     profiles = Profile.objects.filter(matricule__icontains=query)
-
-    if not profiles.exists():
-        return Response([], status=status.HTTP_200_OK)
-
-    users = [profile.matricule for profile in profiles] 
-    serializer = UserListSerializer(users, many=True)
+    serializer = ProfileSerializer(profiles, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
-
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def change_password(request):

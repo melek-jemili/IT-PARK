@@ -17,6 +17,13 @@ class UserSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ['matricule', 'nom', 'prenom', 'cin', 'fonction', 'dateNaissance', 'region', 'email', 'telephone', 'unite']
 
+from rest_framework import serializers
+from .models import Profile
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = '__all__'
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 

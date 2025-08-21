@@ -133,7 +133,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Change Password",
+    name: "Changer Mot De Passe",
     key: "change-password",
     icon: <Icon fontSize="small">lock</Icon>,
     route: "/profile/change-password",

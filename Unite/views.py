@@ -82,25 +82,7 @@ def statistique_unitTotal(request):
 def statistiques_unites_par_gouvernorat(request):
     from django.db.models import Count
 
-    # Total par gouvernorat
-    gouvernorats = (
-        Unite.objects
-        .values('gouvernorat')
-        .annotate(total=Count('codePostal'))
-        .order_by('gouvernorat')
-    )
+    data = Unite.objects.values('gouvernorat').annotate(total=Count('codePostal')).order_by('gouvernorat')
 
-    # Détail par nom (pas classe)
-    details = (
-        Unite.objects
-        .values('gouvernorat', 'nom')
-        .annotate(count=Count('codePostal'))
-    )
-
-    result = []
-    for gov in gouvernorats:
-        gov_details = [d for d in details if d['gouvernorat'] == gov['gouvernorat']]
-        noms_str = ' '.join([f"{d['nom']}:{d['count']}" for d in gov_details])
-        result.append(f"{gov['gouvernorat']} : {gov['total']} ({noms_str})")
-
-    return Response(result)
+    # format: [{gouvernorat: "Tunis", total: 5}, ...]
+    return Response(data)

@@ -6,6 +6,13 @@ import Card from "@mui/material/Card";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import TimelineItem from "examples/Timeline/TimelineItem";
+import Button from "@mui/material/Button";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
@@ -33,6 +40,18 @@ function EquipementsOverview() {
   const [total, setTotal] = useState(null);
   const [byUnite, setByUnite] = useState([]);
   const [byStatut, setByStatut] = useState([]);
+
+  // ---- États pour le menu export ----
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleExportClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("access");
@@ -62,6 +81,81 @@ function EquipementsOverview() {
       ...item,
       label: `${item[codeField]} - ${item[nameField]}`,
     }));
+  // ---- Export PDF ----
+  const exportPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text("Rapport des Maintenances", 14, 15);
+    doc.setFontSize(12);
+    doc.text(`Total des maintenances : ${total}`, 14, 25);
+
+    let startY = 35;
+
+    if (byUnite && byUnite.length > 0) {
+      autoTable(doc, {
+        startY,
+        head: [["Unité", ...byUnite.map((u) => `${u.unite__codePostal} - ${u.unite__nom}`)]],
+        body: [["Nombre", ...byUnite.map((u) => u.total)]],
+        theme: "grid",
+        headStyles: { fillColor: [155, 89, 182] },
+      });
+      startY = doc.lastAutoTable.finalY + 10;
+    }
+
+    if (byStatut && byStatut.length > 0) {
+      const head = [["Statut", ...byStatut.map((s) => s.etat)]];
+      const body = [["Nombre", ...byStatut.map((s) => s.total)]];
+      autoTable(doc, {
+        startY,
+        head,
+        body,
+        theme: "grid",
+        headStyles: { fillColor: [39, 174, 96] },
+      });
+      startY = doc.lastAutoTable.finalY + 10;
+    }
+
+    const date = new Date().toLocaleString("fr-FR");
+    doc.setFontSize(10);
+    doc.text(`Généré le : ${date}`, 14, 290);
+    doc.save("Equipements_report.pdf");
+    handleClose();
+  };
+
+  // ---- Export Excel ----
+  const exportExcel = () => {
+    const ws_data = [];
+
+    // Ligne total
+    ws_data.push(["Total Equipements", total]);
+    ws_data.push([]);
+
+    // Par unité
+    if (byUnite.length > 0) {
+      ws_data.push([
+        "Par Unité",
+        ...byUnite.map((u) => `${u.unite__codePostal} - ${u.unite__nom}`),
+      ]);
+      ws_data.push(["Nombre", ...byUnite.map((u) => u.total)]);
+      ws_data.push([]);
+    }
+
+    // Par statut
+    if (byEquipement.length > 0) {
+      ws_data.push(["Par Statut", ...byStatut.map((e) => `${e.etat}`)]);
+      ws_data.push(["Nombre", ...byStatut.map((e) => e.total)]);
+      ws_data.push([]);
+    }
+
+    // Pied de page
+    ws_data.push([`Généré le : ${new Date().toLocaleString("fr-FR")}`]);
+
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Rapport Maintenances");
+    XLSX.writeFile(wb, "maintenances_report.xlsx");
+    handleClose();
+  };
 
   // Génère un PieChart pour un dataset donné
   const renderPie = (data, nameKey, colorFn) => (
@@ -99,6 +193,16 @@ function EquipementsOverview() {
             Données en temps réel
           </MDTypography>
         </MDBox>
+      </MDBox>
+      {/* ---- Bouton Export ---- */}
+      <MDBox mt={1} mb={2}>
+        <Button variant="contained" color="primary" onClick={handleExportClick}>
+          Exporter
+        </Button>
+        <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+          <MenuItem onClick={exportPDF}>PDF</MenuItem>
+          <MenuItem onClick={exportExcel}>Excel</MenuItem>
+        </Menu>
       </MDBox>
 
       <MDBox p={2}>

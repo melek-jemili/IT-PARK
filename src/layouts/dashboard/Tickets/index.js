@@ -5,7 +5,14 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import TimelineItem from "examples/Timeline/TimelineItem";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import Button from "@mui/material/Button";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 
+// Pour export
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 // Couleurs fixes pour statut
 const STATUS_COLORS = {
   ouvert: "#f44336",
@@ -34,6 +41,140 @@ function TicketsOverview() {
   const [byEquipement, setByEquipement] = useState([]);
   const [byPriorite, setByPriorite] = useState([]);
   const [byPersonne, setByPersonne] = useState([]);
+
+  // état pour le menu export
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleExportClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  // Fonction export Excel
+  const exportExcel = () => {
+    const ws = XLSX.utils.json_to_sheet([
+      { "Tickets Totaux": total },
+      ...byStatus.map((s) => ({ Statut: s.etat, Total: s.total })),
+      ...byUnite.map((u) => ({ Unité: u.unite__nom, Total: u.total })),
+      ...byEquipement.map((e) => ({
+        Equipement: e.equipement__nom,
+        Total: e.total,
+      })),
+      ...byPriorite.map((p) => ({ Priorité: p.priorite, Total: p.total })),
+      ...byPersonne.map((p) => ({
+        Utilisateur: `${p.nom} ${p.prenom}`,
+        Total: p.total,
+      })),
+    ]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Stats Tickets");
+    XLSX.writeFile(wb, "tickets_stats.xlsx");
+    handleClose();
+  };
+
+  // Fonction export PDF
+  const exportPDF = () => {
+    const doc = new jsPDF();
+
+    // ---- Titre ----
+    doc.setFontSize(18);
+    doc.text("Rapport des Tickets", 14, 15);
+
+    // ---- Total tickets ----
+    doc.setFontSize(12);
+    doc.text(`Total des tickets : ${total}`, 14, 25);
+
+    let startY = 35;
+
+    // ---- Tableau Priorité ----
+    if (byPriorite && byPriorite.length > 0) {
+      const head = [["Priorité", ...byPriorite.map((p) => p.priorite)]];
+      const body = [["Nombre", ...byPriorite.map((p) => p.total)]];
+      autoTable(doc, {
+        startY,
+        head,
+        body,
+        theme: "grid",
+        headStyles: { fillColor: [41, 128, 185] },
+      });
+      startY = doc.lastAutoTable.finalY + 10;
+    }
+
+    // ---- Tableau Statut ----
+    if (byStatus && byStatus.length > 0) {
+      const head = [["Statut", ...byStatus.map((s) => s.etat)]];
+      const body = [["Nombre", ...byStatus.map((s) => s.total)]];
+      autoTable(doc, {
+        startY,
+        head,
+        body,
+        theme: "grid",
+        headStyles: { fillColor: [39, 174, 96] },
+      });
+      startY = doc.lastAutoTable.finalY + 10;
+    }
+
+    // ---- Tableau Unité ----
+    if (byUnite && byUnite.length > 0) {
+      const head = [["Unité", ...byUnite.map((u) => `${u.unite__codePostal} - ${u.unite__nom}`)]];
+      const body = [["Nombre", ...byUnite.map((u) => u.total)]];
+      autoTable(doc, {
+        startY,
+        head,
+        body,
+        theme: "grid",
+        headStyles: { fillColor: [155, 89, 182] },
+      });
+      startY = doc.lastAutoTable.finalY + 10;
+    }
+
+    // ---- Tableau Équipement ----
+    if (byEquipement && byEquipement.length > 0) {
+      const head = [
+        [
+          "Équipement",
+          ...byEquipement.map((e) => `${e.equipement__codeABarre} - ${e.equipement__nom}`),
+        ],
+      ];
+      const body = [["Nombre", ...byEquipement.map((e) => e.total)]];
+      autoTable(doc, {
+        startY,
+        head,
+        body,
+        theme: "grid",
+        headStyles: { fillColor: [231, 76, 60] },
+      });
+      startY = doc.lastAutoTable.finalY + 10;
+    }
+
+    // ---- Tableau Utilisateur ----
+    if (byPersonne && byPersonne.length > 0) {
+      const head = [
+        ["Utilisateur", ...byPersonne.map((p) => `${p.matricule} - ${p.nom} ${p.prenom}`)],
+      ];
+      const body = [["Nombre", ...byPersonne.map((p) => p.total)]];
+      autoTable(doc, {
+        startY,
+        head,
+        body,
+        theme: "grid",
+        headStyles: { fillColor: [243, 156, 18] },
+      });
+      startY = doc.lastAutoTable.finalY + 10;
+    }
+
+    // ---- Pied de page : date ----
+    const date = new Date().toLocaleString("fr-FR");
+    doc.setFontSize(10);
+    doc.text(`Généré le : ${date}`, 14, 290);
+
+    // ---- Sauvegarde ----
+    doc.save("tickets_report.pdf");
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("access");
@@ -93,14 +234,12 @@ function TicketsOverview() {
     </MDBox>
   );
 
-  // Fonction pour fusionner 2 champs (code + nom)
   const mergeLabel = (data, codeField, nameField) =>
     data.map((item) => ({
       ...item,
       label: `${item[codeField]} - ${item[nameField]}`,
     }));
 
-  // Fonction pour fusionner 3 champs (matricule + nom + prénom)
   const mergeLabelFullName = (data, codeField, nomField, prenomField) =>
     data.map((item) => ({
       ...item,
@@ -109,15 +248,27 @@ function TicketsOverview() {
 
   return (
     <Card sx={{ height: "100%" }}>
-      <MDBox pt={3} px={3}>
+      <MDBox pt={3} px={3} display="flex" justifyContent="space-between">
         <MDTypography variant="h6" fontWeight="medium">
           Statistiques des tickets
         </MDTypography>
-        <MDBox mt={0} mb={2}>
-          <MDTypography variant="button" color="text" fontWeight="regular">
-            Données en temps réel
-          </MDTypography>
-        </MDBox>
+
+        {/* Bouton Export */}
+        <div>
+          <Button variant="contained" color="primary" onClick={handleExportClick}>
+            Exporter
+          </Button>
+          <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+            <MenuItem onClick={exportPDF}>PDF</MenuItem>
+            <MenuItem onClick={exportExcel}>Excel</MenuItem>
+          </Menu>
+        </div>
+      </MDBox>
+
+      <MDBox mt={0} mb={2} px={3}>
+        <MDTypography variant="button" color="text" fontWeight="regular">
+          Données en temps réel
+        </MDTypography>
       </MDBox>
 
       <MDBox p={2}>
@@ -133,6 +284,7 @@ function TicketsOverview() {
         )}
       </MDBox>
 
+      {/* Les graphiques inchangés */}
       {/* Par statut */}
       <MDBox p={2}>
         <MDTypography variant="subtitle2">Par statut :</MDTypography>
@@ -167,7 +319,13 @@ function TicketsOverview() {
         <MDTypography variant="subtitle2">Par priorité :</MDTypography>
         {renderPie(byPriorite, "priorite", (entry) => {
           const val = entry.priorite?.toLowerCase();
-          return val === "haute" ? "#f44336" : val === "moyenne" ? "#ffeb3b" : "#4caf50";
+          return val === "high"
+            ? "#f44336"
+            : val === "moyenne"
+            ? "#ffeb3b"
+            : val === "faible"
+            ? "#4caf50"
+            : "#9e9e9e";
         })}
       </MDBox>
 
